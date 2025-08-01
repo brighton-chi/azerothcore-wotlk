@@ -211,7 +211,7 @@ public:
                 break;
         }
 
-        return false;
+        return true;
     }
 
     CreatureAI* GetAI(Creature* creature) const override

@@ -26,7 +26,7 @@ public:
     bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, const Quest* quest, uint32 /*slot*/) override
     {
         sWorldState->AddSunsReachProgress(quest->GetQuestId());
-        return false;
+        return true;
     }
 };
 
@@ -38,7 +38,7 @@ public:
     bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, const Quest* quest, uint32 /*slot*/) override
     {
         sWorldState->AddSunwellGateProgress(quest->GetQuestId());
-        return false;
+        return true;
     }
 };
 
