@@ -1,14 +1,14 @@
 /*
  * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
- * option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -48,7 +48,7 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     i_recalculateSpeed = false;
     Movement::MoveSplineInit init(unit);
     /// Added by mod-playerbots
-    if (_orientationInversed)
+    if (_reverseOrientation)
         init.SetOrientationInversed();
     /// End added
     if (m_precomputedPath.size() > 2) // pussywizard: for charge
@@ -87,6 +87,11 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     }
     if (speed > 0.0f)
         init.SetVelocity(speed);
+
+    if (_forcedMovement == FORCED_MOVEMENT_WALK)
+        init.SetWalk(true);
+    else if (_forcedMovement == FORCED_MOVEMENT_RUN)
+        init.SetWalk(false);
 
     if (i_orientation > 0.0f)
     {
@@ -146,6 +151,11 @@ bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
         if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
             init.SetVelocity(speed);
 
+        if (_forcedMovement == FORCED_MOVEMENT_WALK)
+            init.SetWalk(true);
+        else if (_forcedMovement == FORCED_MOVEMENT_RUN)
+            init.SetWalk(false);
+
         if (i_orientation > 0.0f)
         {
             init.SetFacing(i_orientation);
@@ -204,9 +214,14 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit
     if (Unit* summoner = unit->GetCharmerOrOwner())
     {
         if (UnitAI* AI = summoner->GetAI())
-        {
             AI->SummonMovementInform(unit, POINT_MOTION_TYPE, id);
-        }
+    }
+    else
+    {
+        if (TempSummon* tempSummon = unit->ToTempSummon())
+            if (Unit* summoner = tempSummon->GetSummonerUnit())
+                if (UnitAI* AI = summoner->GetAI())
+                    AI->SummonMovementInform(unit, POINT_MOTION_TYPE, id);
     }
 }
 
@@ -230,6 +245,11 @@ void AssistanceMovementGenerator::Finalize(Unit* unit)
 bool EffectMovementGenerator::Update(Unit* unit, uint32)
 {
     return !unit->movespline->Finalized();
+}
+
+void EffectMovementGenerator::Initialize(Unit*)
+{
+    i_spline.Launch();
 }
 
 void EffectMovementGenerator::Finalize(Unit* unit)
