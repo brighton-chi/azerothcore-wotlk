@@ -288,6 +288,10 @@ add_library(modules STATIC
     ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
     ${PRIVATE_SOURCES_MODULES})
 
+if(MSVC)
+    target_compile_options(modules PRIVATE /bigobj)
+endif()
+
 if (MOD_ALE_FOUND)
     target_link_libraries(modules PUBLIC lualib)
     # Also ensure include directories are propagated for modules that include sol.hpp
