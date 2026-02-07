@@ -47,15 +47,6 @@ AC_COMMON_API Optional<int32> MoneyStringToMoney(std::string_view moneyString);
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false);
 uint32 TimeStringToSecs(const std::string& timestring);
 
-inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
-{
-    if (val == -100.0f)     // prevent set var to zero
-    {
-        val = -99.99f;
-    }
-    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
-}
-
 // Percentage calculation
 template <class T, class U>
 inline T CalculatePct(T base, U pct)
@@ -356,7 +347,6 @@ inline wchar_t wcharToLower(wchar_t wchar)
 
 void wstrToUpper(std::wstring& str);
 void wstrToLower(std::wstring& str);
-void strToLower(std::string& str);
 
 std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 

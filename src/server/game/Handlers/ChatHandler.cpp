@@ -335,15 +335,13 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             msg.erase(end, msg.end());
         }
 
-        // Skip validation for playerbots module
+        // mod_playerbots: skip validation for playerbots module
         auto playerbotsHyperlink = msg.find("Hfound:") != std::string::npos;
         if (!playerbotsHyperlink)
         {
             // Validate hyperlinks
             if (!ValidateHyperlinksAndMaybeKick(msg))
-            {
                 return;
-            }
         }
     }
 
@@ -456,10 +454,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                             return;
 
                         guild->BroadcastToGuild(this, false, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
-                    }
-                    else
-                    {
-                        sScriptMgr->OnPlayerCanUseChat(GetPlayer(), type, lang, msg);
                     }
                 }
             }
