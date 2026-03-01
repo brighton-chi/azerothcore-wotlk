@@ -1141,7 +1141,6 @@ bool Item::IsBindedNotWith(Player const* player) const
         return false;
 
     if (IsBOPTradable())
-        if (allowedGUIDs.find(player->GetGUID()) != allowedGUIDs.end())
             return false;
 
     // BOA item case
@@ -1259,16 +1258,12 @@ bool Item::IsRefundExpired()
 void Item::SetSoulboundTradeable(AllowedLooterSet& allowedLooters)
 {
     SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
-    allowedGUIDs = allowedLooters;
+    allowedGUIDs.clear(); // Allow trading to all players
 }
 
 void Item::ClearSoulboundTradeable(Player* currentOwner)
 {
     RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
-    if (allowedGUIDs.empty())
-        return;
-
-    allowedGUIDs.clear();
     SetState(ITEM_CHANGED, currentOwner);
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
     stmt->SetData(0, GetGUID().GetCounter());
