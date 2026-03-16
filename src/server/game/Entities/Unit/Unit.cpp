@@ -8083,13 +8083,19 @@ void Unit::RemoveAllControlled(bool onDeath /*= false*/)
     if (IsPlayer())
         ToPlayer()->StopCastingCharm();
 
-    for (auto it = m_Controlled.begin(); it != m_Controlled.end();)
+    while (!m_Controlled.empty())
     {
-        Unit* target = *it;
+        Unit* target = *m_Controlled.begin();
+        // Erase dead guardians immediately
+        if (target->IsGuardian() && !target->IsAlive())
+        {
+            m_Controlled.erase(m_Controlled.begin());
+            continue;
+        }
 
         if (target->GetCharmerGUID() == GetGUID())
         {
-            it = m_Controlled.erase(it);
+            m_Controlled.erase(m_Controlled.begin());
             target->RemoveCharmAuras();
         }
         else if (target->GetOwnerGUID() == GetGUID() && target->IsSummon())
@@ -8099,22 +8105,18 @@ void Unit::RemoveAllControlled(bool onDeath /*= false*/)
                 if (TempSummon* ts = target->ToTempSummon())
                     if (ts->m_Properties && ts->m_Properties->Type == SUMMON_TYPE_LIGHTWELL)
                     {
-                        ++it;
+                        m_Controlled.erase(m_Controlled.begin());
                         continue;
                     }
 
-            if (!(onDeath && !IsPlayer() && target->IsGuardian()))
-            {
+            // Only UnSummon alive summons
+            if (target->IsAlive())
                 target->ToTempSummon()->UnSummon();
-                it = m_Controlled.erase(it);
-            }
-            else
-                ++it;
+            m_Controlled.erase(m_Controlled.begin());
         }
         else
         {
-            LOG_ERROR("entities.unit", "Unit {} is trying to release unit {} which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
-            ++it;
+            m_Controlled.erase(m_Controlled.begin());
         }
     }
 }
@@ -12777,7 +12779,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
         RemoveFromWorld();
 
     // Added for mod_playerbots crash fixes; cancel and remove pending events before aura/spellmod cleanup.
-    // Without this SpellEvent may be cancelled later during EventProcessor destruction after auras/spellmods 
+    // Without this SpellEvent may be cancelled later during EventProcessor destruction after auras/spellmods
     // are already removed and leading to invalid access in Player::RestoreSpellMods on logout.
     m_Events.KillAllEvents(false);
 
