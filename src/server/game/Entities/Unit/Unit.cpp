@@ -8085,17 +8085,12 @@ void Unit::RemoveAllControlled(bool onDeath /*= false*/)
 
     while (!m_Controlled.empty())
     {
-        Unit* target = *m_Controlled.begin();
-        // Erase dead guardians immediately
-        if (target->IsGuardian() && !target->IsAlive())
-        {
-            m_Controlled.erase(m_Controlled.begin());
-            continue;
-        }
+        Unit* target = *it;
+        ++it;
 
         if (target->GetCharmerGUID() == GetGUID())
         {
-            m_Controlled.erase(m_Controlled.begin());
+            m_Controlled.erase(target);
             target->RemoveCharmAuras();
         }
         else if (target->GetOwnerGUID() == GetGUID() && target->IsSummon())
@@ -8104,19 +8099,15 @@ void Unit::RemoveAllControlled(bool onDeath /*= false*/)
             if (onDeath)
                 if (TempSummon* ts = target->ToTempSummon())
                     if (ts->m_Properties && ts->m_Properties->Type == SUMMON_TYPE_LIGHTWELL)
-                    {
-                        m_Controlled.erase(m_Controlled.begin());
                         continue;
-                    }
 
-            // Only UnSummon alive summons
-            if (target->IsAlive())
+            if (!(onDeath && !IsPlayer() && target->IsGuardian()))
                 target->ToTempSummon()->UnSummon();
-            m_Controlled.erase(m_Controlled.begin());
         }
         else
         {
-            m_Controlled.erase(m_Controlled.begin());
+            LOG_ERROR("entities.unit", "Unit {} is trying to release unit {} which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
+            m_Controlled.erase(target);
         }
     }
 }
