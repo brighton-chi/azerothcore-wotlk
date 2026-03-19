@@ -8083,7 +8083,7 @@ void Unit::RemoveAllControlled(bool onDeath /*= false*/)
     if (IsPlayer())
         ToPlayer()->StopCastingCharm();
 
-    while (!m_Controlled.empty())
+    for (auto it = m_Controlled.begin(); it != m_Controlled.end();)
     {
         Unit* target = *it;
         ++it;
