@@ -1,0 +1,2 @@
+C:/azerothcore-wotlk/CMakeFiles/edit_cache.dir
+C:/azerothcore-wotlk/CMakeFiles/rebuild_cache.dir
