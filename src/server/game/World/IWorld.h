@@ -112,6 +112,8 @@ public:
     [[nodiscard]] virtual uint32 GetCleaningFlags() const = 0;
     virtual void   SetCleaningFlags(uint32 flags) = 0;
     virtual void   ResetEventSeasonalQuests(uint16 event_id) = 0;
+    virtual SQLQueryHolderCallback& AddQueryHolderCallback(
+        SQLQueryHolderCallback&& callback) = 0;
     [[nodiscard]] virtual std::string const& GetRealmName() const = 0;
     virtual void SetRealmName(std::string name) = 0;
     virtual void ReloadRBAC() = 0;
