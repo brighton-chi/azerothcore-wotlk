@@ -269,11 +269,6 @@ std::string WorldSession::GetPlayerInfo() const
     return ss.str();
 }
 
-LockedQueue<WorldPacket*>& WorldSession::GetPacketQueue()
-{
-    return _recvQueue;
-}
-
 void WorldSession::SendAreaTriggerMessage(std::string_view str)
 {
     std::vector<std::string_view> lines = Acore::Tokenize(str, '\n', true);
@@ -1560,6 +1555,11 @@ void WorldSession::SetPacketLogging(bool state)
 {
     if (m_Socket)
         m_Socket->SetPacketLogging(state);
+}
+
+LockedQueue<WorldPacket*>& WorldSession::GetPacketQueue()
+{
+    return _recvQueue;
 }
 
 void WorldSession::LoadPermissions()
