@@ -1577,7 +1577,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_WHILE_STUNNED;
     });
 
-    // Prince Malcezaar - Amplify Damage
+    // Prince Malchezaar - Amplify Damage
     ApplySpellFix({ 39095 }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
@@ -5205,6 +5205,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 54933 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].BasePoints = 1;
+    });
+
+    // 26025 Impale
+    ApplySpellFix({ 26025 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CONE_ENEMY_54);
+        spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(0);
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
