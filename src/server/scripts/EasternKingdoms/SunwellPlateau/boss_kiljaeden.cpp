@@ -715,14 +715,12 @@ struct npc_kalecgos_kj : public NullCreatureAI
     {
         if (param == ACTION_START_AERIAL_SUPPORT)
         {
-            me->CastSpell(static_cast<Unit*>(nullptr), SPELL_ARCANE_BOLT, true);
+            DoCastSelf(SPELL_ARCANE_BOLT, true);
         }
         else if (param == ACTION_START_POST_EVENT)
         {
-            events.Reset();
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveIdle();
-            me->CombatStop(true);
             me->RemoveAurasDueToSpell(SPELL_ARCANE_BOLT);
             me->SetCanFly(false);
             me->SetDisableGravity(false);
