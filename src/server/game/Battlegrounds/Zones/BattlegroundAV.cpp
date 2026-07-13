@@ -412,7 +412,8 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
                 if (i == 0)
                 {
                     CastSpellOnTeam(AV_BUFF_A_CAPTAIN, TEAM_ALLIANCE);
-                    Creature* creature = GetBGCreature(AV_CPLACE_MAX + 61);
+                    // Creature* creature = GetBGCreature(AV_CPLACE_MAX + 79);
+                    Creature* creature = GetStaticCreatureByEntry(BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN]);
                     if (creature)
                     {
                         std::string creatureText = sCreatureTextMgr->GetLocalizedChatString(creature->GetEntry(), creature->getGender(), 0, 0, DEFAULT_LOCALE);
@@ -422,7 +423,8 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
                 else
                 {
                     CastSpellOnTeam(AV_BUFF_H_CAPTAIN, TEAM_HORDE);
-                    Creature* creature = GetBGCreature(AV_CPLACE_MAX + 59); //TODO: make the captains a dynamic creature
+                    // Creature* creature = GetBGCreature(AV_CPLACE_MAX + 77); //TODO: make the captains a dynamic creature
+                    Creature* creature = GetStaticCreatureByEntry(BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN]);
                     if (creature)
                     {
                         std::string creatureText = sCreatureTextMgr->GetLocalizedChatString(creature->GetEntry(), creature->getGender(), 2, 0, DEFAULT_LOCALE);
@@ -669,6 +671,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
         SpawnBGObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION + 3 * node, RESPAWN_ONE_DAY);
         SpawnBGObject(static_cast<uint8>(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION) + ownerId + 3 * node, RESPAWN_IMMEDIATELY);
         PopulateNode(node);
+
         if (node == BG_AV_NODES_SNOWFALL_GRAVE) //snowfall eyecandy
         {
             for (uint8 i = 0; i < 4; i++)
@@ -685,9 +688,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
 
 void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
 {
-    // mine=0 northmine mine=1 southmin
-    // changing the owner results in setting respawntim to infinite for current creatures,
-    // spawning new mine owners creatures and changing the chest-objects so that the current owning team can use them
+    // mine=0 north mine, mine=1 south mine
 
     ASSERT(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
     if (teamId == TEAM_ALLIANCE || teamId == TEAM_HORDE)
@@ -695,59 +696,33 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
 
     if (m_Mine_Owner[mine] == teamId && !initial)
         return;
+
     m_Mine_Owner[mine] = teamId;
 
-    if (!initial)
-    {
-        LOG_DEBUG("bg.battleground", "bg_av depopulating mine {} (0=north, 1=south)", mine);
-        if (mine == AV_SOUTH_MINE)
-            for (uint16 i = AV_CPLACE_MINE_S_S_MIN; i <= AV_CPLACE_MINE_S_S_MAX; i++)
-                if (BgCreatures[i])
-                    DelCreature(i); //TODO just set the respawntime to 999999
-        for (uint16 i = ((mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_1_MIN : AV_CPLACE_MINE_S_1_MIN); i <= ((mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_3 : AV_CPLACE_MINE_S_3); i++)
-            if (BgCreatures[i])
-                DelCreature(i); //TODO here also
-    }
     SendMineWorldStates(mine);
 
-    LOG_DEBUG("bg.battleground", "bg_av populating mine {} (0=north, 1=south)", mine);
-    uint16 miner;
-    //also neutral team exists.. after a big time, the neutral team tries to conquer the mine
+    uint16 boss;
+    
     if (mine == AV_NORTH_MINE)
     {
         if (teamId == TEAM_ALLIANCE)
-            miner = AV_NPC_N_MINE_A_1;
+            boss = AV_NPC_N_MINE_A_4;
         else if (teamId == TEAM_HORDE)
-            miner = AV_NPC_N_MINE_H_1;
+            boss = AV_NPC_N_MINE_H_4;
         else
-            miner = AV_NPC_N_MINE_N_1;
+            boss = AV_NPC_N_MINE_N_4;
     }
-    else
+    else // (mine == AV_SOUTH_MINE)
     {
-        uint16 cinfo;
         if (teamId == TEAM_ALLIANCE)
-            miner = AV_NPC_S_MINE_A_1;
+            boss = AV_NPC_S_MINE_A_4;
         else if (teamId == TEAM_HORDE)
-            miner = AV_NPC_S_MINE_H_1;
+            boss = AV_NPC_S_MINE_H_4;
         else
-            miner = AV_NPC_S_MINE_N_1;
-        //vermin
-        LOG_DEBUG("bg.battleground", "spawning vermin");
-        if (teamId == TEAM_ALLIANCE)
-            cinfo = AV_NPC_S_MINE_A_3;
-        else if (teamId == TEAM_HORDE)
-            cinfo = AV_NPC_S_MINE_H_3;
-        else
-            cinfo = AV_NPC_S_MINE_N_S;
-        for (uint16 i = AV_CPLACE_MINE_S_S_MIN; i <= AV_CPLACE_MINE_S_S_MAX; i++)
-            AddAVCreature(cinfo, i);
+            boss = AV_NPC_S_MINE_N_4;
     }
-    for (uint16 i = ((mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_1_MIN : AV_CPLACE_MINE_S_1_MIN); i <= ((mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_1_MAX : AV_CPLACE_MINE_S_1_MAX); i++)
-        AddAVCreature(miner, i);
-    //the next chooses randomly between 2 cretures
-    for (uint16 i = ((mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_2_MIN : AV_CPLACE_MINE_S_2_MIN); i <= ((mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_2_MAX : AV_CPLACE_MINE_S_2_MAX); i++)
-        AddAVCreature(miner + (urand(1, 2)), i);
-    AddAVCreature(miner + 3, (mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_3 : AV_CPLACE_MINE_S_3);
+
+    AddAVCreature(boss, (mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_3 : AV_CPLACE_MINE_S_3);
 
     if (teamId == TEAM_ALLIANCE || teamId == TEAM_HORDE)
     {
@@ -757,7 +732,15 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
     }
     else
     {
-        if (mine == AV_SOUTH_MINE) //i think this gets called all the time
+        if (mine == AV_NORTH_MINE)
+        {
+            if (Creature* creature = GetBGCreature(AV_CPLACE_MINE_N_3))
+            {
+                std::string creatureText = sCreatureTextMgr->GetLocalizedChatString(creature->GetEntry(), creature->getGender(), 0, 0, DEFAULT_LOCALE);
+                YellToAll(creature, creatureText.c_str(), LANG_UNIVERSAL);
+            }
+        }
+        else // (mine == AV_SOUTH_MINE)
         {
             if (Creature* creature = GetBGCreature(AV_CPLACE_MINE_S_3))
             {
@@ -1498,10 +1481,12 @@ bool BattlegroundAV::SetupBattleground()
         if (m_Nodes[i].OwnerId != TEAM_NEUTRAL)
             PopulateNode(BG_AV_Nodes(i));
     }
+
     //all creatures which don't get despawned through the script are static
     LOG_DEBUG("bg.battleground", "BG_AV: start spawning static creatures");
     for (i = 0; i < AV_STATICCPLACE_MAX; i++)
         AddAVCreature(0, i + AV_CPLACE_MAX);
+
     //mainspiritguides:
     LOG_DEBUG("bg.battleground", "BG_AV: start spawning spiritguides creatures");
     AddSpiritGuide(7, BG_AV_CreaturePos[7][0], BG_AV_CreaturePos[7][1], BG_AV_CreaturePos[7][2], BG_AV_CreaturePos[7][3], TEAM_ALLIANCE);
@@ -1904,4 +1889,21 @@ TeamId BattlegroundAV::GetPrematureWinner()
         return TEAM_ALLIANCE;
 
     return GetTeamScore(TEAM_HORDE) > GetTeamScore(TEAM_ALLIANCE) ? TEAM_HORDE : Battleground::GetPrematureWinner();
+}
+
+Creature* BattlegroundAV::GetStaticCreatureByEntry(uint32 entry)
+{
+    // Static creatures are spawned with types in range [AV_CPLACE_MAX, AV_CPLACE_MAX + AV_STATICCPLACE_MAX - 1]
+    const uint32 startType = static_cast<uint32>(AV_CPLACE_MAX);
+    const uint32 endType = startType + AV_STATICCPLACE_MAX;
+
+    for (uint32 type = startType; type < endType; ++type)
+    {
+        if (Creature* c = GetBGCreature(type))
+        {
+            if (c->GetEntry() == entry)
+                return c;
+        }
+    }
+    return nullptr;
 }
