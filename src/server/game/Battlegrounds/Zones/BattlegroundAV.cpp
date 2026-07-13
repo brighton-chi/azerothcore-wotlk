@@ -311,6 +311,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     bool isStatic = false;
     Creature* creature = nullptr;
     ASSERT(type <= static_cast<uint16>(AV_CPLACE_MAX) + AV_STATICCPLACE_MAX);
+
     if (type >= AV_CPLACE_MAX) //static
     {
         type -= AV_CPLACE_MAX;
@@ -332,26 +333,26 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
                                 BG_AV_CreaturePos[type][2],
                                 BG_AV_CreaturePos[type][3]);
     }
+
     if (!creature)
         return nullptr;
+
     if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN] || creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN])
         creature->SetRespawnDelay(RESPAWN_ONE_DAY); /// @todo: look if this can be done by database + also add this for the wingcommanders
 
     if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_A_TOWERDEFENSE] || creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_TOWERDEFENSE])
         creature->SetUnitFlag(UNIT_FLAG_DISABLE_MOVE);
 
-    if ((isStatic && cinfoid >= 10 && cinfoid <= 14) || (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3) ||
-            (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))))
+    if (isStatic)
     {
-        if (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3)
-                            || (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3)))
-        {
-            CreatureData& data = sObjectMgr->NewOrExistCreatureData(creature->GetSpawnId());
-            data.wander_distance = 5;
-        }
-
-        // movement of wolves/rams/harpies and graveyard defenders not found in the database
-        creature->GetMotionMaster()->MoveRandom(10.0f);
+        if (cinfoid == 10 || cinfoid == 11) // Frostwolf, Alterac Ram
+            creature->GetMotionMaster()->MoveRandom(10.0f);
+    }
+    else
+    {
+        if ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3) || // graveyard defenders
+            (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))
+            creature->GetMotionMaster()->MoveRandom(5.0f);
     }
 
     uint32 triggerSpawnID = 0;
@@ -1893,7 +1894,7 @@ TeamId BattlegroundAV::GetPrematureWinner()
 
 Creature* BattlegroundAV::GetStaticCreatureByEntry(uint32 entry)
 {
-    // Static creatures are spawned with types in range [AV_CPLACE_MAX, AV_CPLACE_MAX + AV_STATICCPLACE_MAX - 1]
+    // Static creatures are spawned with types in range [AV_CPLACE_MAX, AV_CPLACE_MAX + AV_STATICCPLACE_MAX - 1] [321, 321+149-1]
     const uint32 startType = static_cast<uint32>(AV_CPLACE_MAX);
     const uint32 endType = startType + AV_STATICCPLACE_MAX;
 
