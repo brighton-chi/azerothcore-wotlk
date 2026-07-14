@@ -1894,7 +1894,7 @@ TeamId BattlegroundAV::GetPrematureWinner()
 
 Creature* BattlegroundAV::GetStaticCreatureByEntry(uint32 entry)
 {
-    // Static creatures are spawned with types in range [AV_CPLACE_MAX, AV_CPLACE_MAX + AV_STATICCPLACE_MAX - 1] [321, 321+149-1]
+    // Static creatures are spawned with types in range [AV_CPLACE_MAX, AV_CPLACE_MAX + AV_STATICCPLACE_MAX - 1]
     const uint32 startType = static_cast<uint32>(AV_CPLACE_MAX);
     const uint32 endType = startType + AV_STATICCPLACE_MAX;
 
