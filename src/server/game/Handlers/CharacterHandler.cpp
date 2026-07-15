@@ -368,7 +368,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
     // speedup check for heroic class disabled case
     uint32 req_level_for_heroic = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
-    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT) && createInfo->Class == CLASS_DEATH_KNIGHT && req_level_for_heroic > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT) && createInfo->Class == CLASS_DEATH_KNIGHT
+        && req_level_for_heroic > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) && !HasAccountFlag(ACCOUNT_FLAG_DEATH_KNIGHT_OK))
     {
         SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
         return;
@@ -380,7 +381,38 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
         .WithChainingPreparedCallback([this](QueryCallback& queryCallback, PreparedQueryResult result)
             {
-                if (result)
+                SendCharCreate(CHAR_CREATE_SERVER_LIMIT);
+                return;
+            }
+        }
+
+        bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
+        uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
+
+        std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
+        {
+            if (!sScriptMgr->CanAccountCreateCharacter(GetAccountId(), createInfo->Race, createInfo->Class))
+            {
+                SendCharCreate(CHAR_CREATE_DISABLED);
+                return;
+            }
+            bool haveSameRace = false;
+            uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
+            bool const deathKnightFlagAlreadySet = HasAccountFlag(ACCOUNT_FLAG_DEATH_KNIGHT_OK); // Account flag is superior to level requirement.
+            bool hasHeroicReqLevel = (heroicReqLevel == 0) || deathKnightFlagAlreadySet;
+            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
+            uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
+            bool checkDeathKnightReqs = !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT) && createInfo->Class == CLASS_DEATH_KNIGHT;
+
+            if (result)
+            {
+                TeamId teamId = Player::TeamIdForRace(createInfo->Race);
+                uint32 freeDeathKnightSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
+
+                Field* field = result->Fetch();
+                uint8 accRace = field[1].Get<uint8>();
+
+                if (checkDeathKnightReqs)
                 {
                     SendCharCreate(CHAR_CREATE_NAME_IN_USE);
                     return;
@@ -529,6 +561,18 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                             SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
                             return;
                         }
+
+            if (checkDeathKnightReqs)
+            {
+                if (!deathKnightFlagAlreadySet && hasHeroicReqLevel)
+                    UpdateAccountFlag(ACCOUNT_FLAG_DEATH_KNIGHT_OK);
+
+                if (!hasHeroicReqLevel)
+                {
+                    SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
+                    return;
+                }
+            }
 
                         // Check name uniqueness in the same step as saving to database
                         if (sCharacterCache->GetCharacterGuidByName(createInfo->Name))
