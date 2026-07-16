@@ -101,6 +101,9 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     */
     if (entry == BG_AV_CreatureInfo[AV_NPC_A_BOSS])
     {
+        if (Creature* creature = GetBGCreature(AV_CPLACE_HERALD))
+            creature->AI()->Talk(AV_TEXT_HERALD_STORMPIKE_GENERAL_DEAD);
+
         CastSpellOnTeam(23658, TEAM_HORDE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(729, _reputationBoss, TEAM_HORDE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_BOSS), TEAM_HORDE);
@@ -109,6 +112,9 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_BOSS])
     {
+        if (Creature* creature = GetBGCreature(AV_CPLACE_HERALD))
+            creature->AI()->Talk(AV_TEXT_HERALD_FROSTWOLF_GENERAL_DEAD);
+
         CastSpellOnTeam(23658, TEAM_ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(730, _reputationBoss, TEAM_ALLIANCE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_BOSS), TEAM_ALLIANCE);
@@ -122,15 +128,16 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
             LOG_ERROR("bg.battleground", "Killed a Captain twice, please report this bug, if you haven't done \".respawn\"");
             return;
         }
+
         m_CaptainAlive[0] = false;
         RewardReputationToTeam(729, _reputationCaptain, TEAM_HORDE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_CAPTAIN), TEAM_HORDE);
         UpdateScore(TEAM_ALLIANCE, (-1)*BG_AV_RES_CAPTAIN);
+
         //spawn destroyed aura
         for (uint8 i = 0; i <= 9; i++)
             SpawnBGObject(BG_AV_OBJECT_BURN_BUILDING_ALLIANCE + i, RESPAWN_IMMEDIATELY);
-        if (Creature* creature = GetBGCreature(AV_CPLACE_HERALD))
-            creature->AI()->Talk(AV_TEXT_HERALD_STORMPIKE_GENERAL_DEAD);
+
         DelCreature(AV_CPLACE_TRIGGER16);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN])
@@ -140,15 +147,16 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
             LOG_ERROR("bg.battleground", "Killed a Captain twice, please report this bug, if you haven't done \".respawn\"");
             return;
         }
+
         m_CaptainAlive[1] = false;
         RewardReputationToTeam(730, _reputationCaptain, TEAM_ALLIANCE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_CAPTAIN), TEAM_ALLIANCE);
         UpdateScore(TEAM_HORDE, (-1)*BG_AV_RES_CAPTAIN);
+
         //spawn destroyed aura
         for (uint8 i = 0; i <= 9; i++)
             SpawnBGObject(BG_AV_OBJECT_BURN_BUILDING_HORDE + i, RESPAWN_IMMEDIATELY);
-        if (Creature* creature = GetBGCreature(AV_CPLACE_HERALD))
-            creature->AI()->Talk(AV_TEXT_HERALD_FROSTWOLF_GENERAL_DEAD);
+
         DelCreature(AV_CPLACE_TRIGGER18);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_H_4])
