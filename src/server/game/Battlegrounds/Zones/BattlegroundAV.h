@@ -22,8 +22,8 @@
 #include "BattlegroundScore.h"
 #include "WorldStateDefines.h"
 
-#define BG_AV_CAPTIME                   240000  //4:00
-#define BG_AV_SNOWFALL_FIRSTCAP         300000  //5:00 but i also have seen 4:05
+#define BG_AV_CAPTIME                   240000  // 4:00
+#define BG_AV_SNOWFALL_FIRSTCAP         300000  // 5:00 but i also have seen 4:05
 
 #define BG_AV_SCORE_INITIAL_POINTS      (sWorld->getIntConfig(CONFIG_BATTLEGROUND_ALTERAC_REINFORCEMENTS)) // Blizzlike default is 600
 #define SEND_MSG_NEAR_LOSE              120
@@ -36,7 +36,7 @@
 #define BG_AV_KILL_TOWER                3
 #define BG_AV_RES_TOWER                 75
 
-#define BG_AV_GET_COMMANDER             1 //for a safely returned wingcommander
+#define BG_AV_GET_COMMANDER             1 // for a safely returned wingcommander
 //bonushonor at the end
 #define BG_AV_KILL_SURVIVING_TOWER      2
 
@@ -108,7 +108,7 @@ enum BG_AV_OTHER_VALUES
     AV_NORTH_MINE                = 0,
     AV_SOUTH_MINE                = 1,
     AV_MINE_TICK_TIMER           = 45000,
-    AV_MINE_RECLAIM_TIMER        = 1200000, //TODO: get the right value.. this is currently 20 minutes
+    AV_MINE_RECLAIM_TIMER        = 1200000, // TODO: get the right value.. this is currently 20 minutes
     BG_AV_QUEST_CREDIT_MINE      = 13796,
     BG_AV_QUEST_CREDIT_TOWER     = 13778,
     BG_AV_QUEST_CREDIT_GRAVEYARD = 13756
@@ -137,10 +137,10 @@ enum BG_AV_ObjectIds
     BG_AV_OBJECTID_SNOWFALL_CANDY_PH    = 179425,
 
     //banners on top of towers:
-    BG_AV_OBJECTID_TOWER_BANNER_A  = 178927, //[PH] Alliance A1 Tower Banner BIG
-    BG_AV_OBJECTID_TOWER_BANNER_H  = 178955, //[PH] Horde H1 Tower Banner BIG
-    BG_AV_OBJECTID_TOWER_BANNER_PA = 179446, //[PH] Alliance H1 Tower Pre-Banner BIG
-    BG_AV_OBJECTID_TOWER_BANNER_PH = 179436, //[PH] Horde A1 Tower Pre-Banner BIG
+    BG_AV_OBJECTID_TOWER_BANNER_A       = 178927, //[PH] Alliance A1 Tower Banner BIG
+    BG_AV_OBJECTID_TOWER_BANNER_H       = 178955, //[PH] Horde H1 Tower Banner BIG
+    BG_AV_OBJECTID_TOWER_BANNER_PA      = 179446, //[PH] Alliance H1 Tower Pre-Banner BIG
+    BG_AV_OBJECTID_TOWER_BANNER_PH      = 179436, //[PH] Horde A1 Tower Pre-Banner BIG
 
     //Auras
     BG_AV_OBJECTID_AURA_A               = 180421,
@@ -754,8 +754,8 @@ const float BG_AV_DoorPositons[2][4] =
     {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
 };
 
-//creaturestuff starts here
-//is related to BG_AV_CreaturePos
+// creature stuff starts here
+// is related to BG_AV_CreaturePos
 enum BG_AV_CreaturePlace
 {
     AV_CPLACE_SPIRIT_STORM_AID      = 0,
@@ -939,25 +939,25 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
     {-48.459f, -288.802f, 55.47f, 1.0f}, // 79
 
     //triggers
-    {637.083f, -32.6603f, 45.9715f, 1.14353f},     //firstaid_station
-    {669.007f, -294.078f, 30.2909f, 2.77507f},     //stormpike_grave
-    {77.8013f, -404.7f, 46.7549f, -0.872665f},     //stoneheart_grave
-    {-202.581f, -112.73f, 78.4876f, -0.715585f},   //snowfall_grave
-    {-611.962f, -396.17f, 60.8351f, 2.53682f},     //iceblood_grave
-    {-1082.45f, -346.823f, 54.9219f, -1.53589f},   //frostwolf_grave
-    {-1402.21f, -307.431f, 89.4424f, 0.191986f},   //frostwolf_hut
-    {553.779f, -78.6566f, 51.9378f, -1.22173f},    //dunbaldar_south
-    {674.001f, -143.125f, 63.6615f, 0.994838f},    //dunbaldar_north
-    {203.281f, -360.366f, 56.3869f, -0.925024f},   //icewing_bunker
-    {-152.437f, -441.758f, 40.3982f, -1.95477f},   //stoneheart_bunker
-    {-571.88f, -262.777f, 75.0087f, -0.802851f},   //iceblood_tower
-    {-768.907f, -363.71f, 90.8949f, 1.07991f},     //tower_point
-    {-1302.9f, -316.981f, 113.867f, 2.00713f},     //frostwolf_etower
-    {-1297.5f, -266.767f, 114.15f, 3.31044f},      //frostwolf_wtower
-    {-57.7891f, -286.597f, 15.6479f, 6.02139f},    //AV_NPC_A_CAPTAIN balinda
-    {722.43f, -10.9982f, 50.7046f, 3.42085f},      //AV_NPC_A_BOSS vanndar
-    {-545.23f, -165.35f, 57.7886f, 5.88342f},      //AV_NPC_H_CAPTAIN galvangar
-    {-1370.9f, -219.793f, 98.4258f, 5.04381f}      //AV_NPC_H_BOSS drek thar
+    { 637.083f, -32.6603f, 45.9715f, 1.14353f },     // firstaid_station
+    { 669.007f, -294.078f, 30.2909f, 2.77507f },     // stormpike_grave
+    { 77.8013f, -404.7f, 46.7549f, -0.872665f },     // stoneheart_grave
+    { -202.581f, -112.73f, 78.4876f, -0.715585f },   // snowfall_grave
+    { -611.962f, -396.17f, 60.8351f, 2.53682f },     // iceblood_grave
+    { -1082.45f, -346.823f, 54.9219f, -1.53589f },   // frostwolf_grave
+    { -1402.21f, -307.431f, 89.4424f, 0.191986f },   // frostwolf_hut
+    { 553.779f, -78.6566f, 51.9378f, -1.22173f },    // dunbaldar_south
+    { 674.001f, -143.125f, 63.6615f, 0.994838f },    // dunbaldar_north
+    { 203.281f, -360.366f, 56.3869f, -0.925024f },   // icewing_bunker
+    { -152.437f, -441.758f, 40.3982f, -1.95477f },   // stoneheart_bunker
+    { -571.88f, -262.777f, 75.0087f, -0.802851f },   // iceblood_tower
+    { -768.907f, -363.71f, 90.8949f, 1.07991f },     // tower_point
+    { -1302.9f, -316.981f, 113.867f, 2.00713f },     // frostwolf_etower
+    { -1297.5f, -266.767f, 114.15f, 3.31044f },      // frostwolf_wtower
+    { -57.7891f, -286.597f, 15.6479f, 6.02139f },    // AV_NPC_A_CAPTAIN balinda
+    { 722.43f, -10.9982f, 50.7046f, 3.42085f },      // AV_NPC_A_BOSS vanndar
+    { -545.23f, -165.35f, 57.7886f, 5.88342f },      // AV_NPC_H_CAPTAIN galvangar
+    { -1370.9f, -219.793f, 98.4258f, 5.04381f }      // AV_NPC_H_BOSS drek thar
 };
 
 enum BG_AV_CreatureIds
@@ -1320,9 +1320,9 @@ const uint32 BG_AV_GraveyardIds[9] =
 enum BG_AV_BUFF
 {
     //TODO add all other buffs here
-    AV_BUFF_ARMOR = 21163,
-    AV_BUFF_A_CAPTAIN = 23693, //the buff which the alliance captain does
-    AV_BUFF_H_CAPTAIN = 22751 //the buff which the horde captain does
+    AV_BUFF_ARMOR     = 21163,
+    AV_BUFF_A_CAPTAIN = 23693, // the buff which the alliance captain does
+    AV_BUFF_H_CAPTAIN = 22751  // the buff which the horde captain does
 };
 
 enum BG_AV_States
@@ -1336,8 +1336,8 @@ enum BG_AV_States
 //alliance_control neutral_control horde_control
 const uint32 BG_AV_MineWorldStates[2][3] =
 {
-    {WORLD_STATE_BATTLEGROUND_AV_N_MINE_A, WORLD_STATE_BATTLEGROUND_AV_N_MINE_N, WORLD_STATE_BATTLEGROUND_AV_N_MINE_H},
-    {WORLD_STATE_BATTLEGROUND_AV_S_MINE_A, WORLD_STATE_BATTLEGROUND_AV_S_MINE_N, WORLD_STATE_BATTLEGROUND_AV_S_MINE_H}
+    { WORLD_STATE_BATTLEGROUND_AV_N_MINE_A, WORLD_STATE_BATTLEGROUND_AV_N_MINE_N, WORLD_STATE_BATTLEGROUND_AV_N_MINE_H },
+    { WORLD_STATE_BATTLEGROUND_AV_S_MINE_A, WORLD_STATE_BATTLEGROUND_AV_S_MINE_N, WORLD_STATE_BATTLEGROUND_AV_S_MINE_H }
 };
 
 //alliance_control alliance_assault h_control h_assault
@@ -1381,19 +1381,19 @@ enum BG_AV_QuestIds
     AV_QUEST_A_SCRAPS2      = 6781,
     AV_QUEST_H_SCRAPS1      = 7224,
     AV_QUEST_H_SCRAPS2      = 6741,
-    AV_QUEST_A_COMMANDER1   = 6942, //soldier
+    AV_QUEST_A_COMMANDER1   = 6942, // soldier
     AV_QUEST_H_COMMANDER1   = 6825,
-    AV_QUEST_A_COMMANDER2   = 6941, //leutnant
+    AV_QUEST_A_COMMANDER2   = 6941, // lieutenant
     AV_QUEST_H_COMMANDER2   = 6826,
-    AV_QUEST_A_COMMANDER3   = 6943, //commander
+    AV_QUEST_A_COMMANDER3   = 6943, // commander
     AV_QUEST_H_COMMANDER3   = 6827,
     AV_QUEST_A_BOSS1        = 7386, // 5 cristal/blood
     AV_QUEST_H_BOSS1        = 7385,
     AV_QUEST_A_BOSS2        = 6881, // 1
     AV_QUEST_H_BOSS2        = 6801,
-    AV_QUEST_A_NEAR_MINE    = 5892, //the mine near start location of team
+    AV_QUEST_A_NEAR_MINE    = 5892, // the mine near start location of team
     AV_QUEST_H_NEAR_MINE    = 5893,
-    AV_QUEST_A_OTHER_MINE   = 6982, //the other mine ;)
+    AV_QUEST_A_OTHER_MINE   = 6982, // the other mine ;)
     AV_QUEST_H_OTHER_MINE   = 6985,
     AV_QUEST_A_RIDER_HIDE   = 7026,
     AV_QUEST_H_RIDER_HIDE   = 7002,
@@ -1475,8 +1475,8 @@ enum BG_AV_HERALD
     AV_TEXT_A_HERALD_IRONDEEP_MINE_TAKEN          = 62,
     AV_TEXT_H_HERALD_COLDTOOTH_MINE_TAKEN         = 63,
     AV_TEXT_H_HERALD_IRONDEEP_MINE_TAKEN          = 64,
-    AV_TEXT_HERALD_FROSTWOLF_GENERAL_DEAD         = 65,
-    AV_TEXT_HERALD_STORMPIKE_GENERAL_DEAD         = 66,
+    AV_TEXT_HERALD_FROSTWOLF_GENERAL_DEAD         = 65, // fix!
+    AV_TEXT_HERALD_STORMPIKE_GENERAL_DEAD         = 66, // fix!
     AV_TEXT_A_HERALD_WIN                          = 67,
     AV_TEXT_H_HERALD_WIN                          = 68
 };
