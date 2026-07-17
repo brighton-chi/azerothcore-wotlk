@@ -104,7 +104,7 @@ enum BG_AV_Sounds
 
 enum BG_AV_OTHER_VALUES
 {
-    AV_STATICCPLACE_MAX          = 148,
+    AV_STATICCPLACE_MAX          = 157,
     AV_NORTH_MINE                = 0,
     AV_SOUTH_MINE                = 1,
     AV_MINE_TICK_TIMER           = 45000,
@@ -935,7 +935,7 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
     // Snivvle
     {-848.902f, -92.931f, 68.6325f, 3.33350f}, // 78
 
-    //herald
+    // Stormpike herald
     {-48.459f, -288.802f, 55.47f, 1.0f}, // 79
 
     //triggers
@@ -1019,7 +1019,7 @@ enum BG_AV_CreatureIds
     AV_NPC_S_MINE_H_4      = 46,
 
     AV_NPC_HERALD          = 47,
-    AV_NPC_INFO_MAX        = 48
+    AV_NPC_INFO_MAX        = 49
 };
 
 const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
@@ -1079,11 +1079,12 @@ const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
     13089, // Coldmine Guard 45
     13088, // Masha Swiftcut 46
 
-    14848  // Herald 47
+    14848, // Stormpike Herald 47
+    11998  // Frostwolf Herald 48
 };
 
 //x, y, z, o, static_creature_info-id
-const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 148
+const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 157
 {
     //static creatures
     { -1235.31f, -340.777f, 60.5088f, 3.31613f, 0 }, // 2225 - Zora Guthrek
@@ -1155,7 +1156,7 @@ const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 148
     { -545.23f, -165.35f, 57.7886f, 5.88342f, 12 },   // 11947 - Captain Galvangar
     { 722.43f, -10.9982f, 50.7046f, 3.42085f, 13 },   // 11948 - Vanndar Stormpike
     { -57.7891f, -286.597f, 15.6479f, 6.02139f, 14 }, // 11949 - Captain Balinda Stonehearth
-    { 930.498f, -520.755f, 93.7334f, 1.8326f, 15 },   // 11997 - Stormpike Herald
+    { -1370.9f, -219.793f, 98.4258f, 5.04381f, 15 },  // Drek'Thar
 
     { -554.933, -174.876, 57.9563, 0.465655, 16 },    // 12051 - Frostwolf Legionnaire
     { -536.28, -182.784, 57.9519, 4.85222, 16 },
@@ -1223,18 +1224,27 @@ const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 148
     { -1445.25, -591.668, 51.2814, 6.27423, 42 },
     { -1448.25, -614.268, 51.3558, 1.13232, 42 },
     { -1448.13, -601.626, 51.2171, 5.00434, 42 },
+    { -1486.72, -655.177, 49.0348, 3.65387, 42 },
+    { -1496.52, -664.84, 49.5705, 6.23783, 42 },
+    { -1491.89, -682.146, 47.7207, 0.553317, 42 },
+    { -1481.69, -676.03, 48.8492, 3.27473, 42 },
+    { -1501.71, -712.99, 47.723, 1.87672, 42 },
+    { -1506.73, -706.163, 47.6816, 5.89403, 42 },
+    { -1503.16, -714.369, 48.1781, 1.62146, 42 },
+    { -1508.63, -708.495, 48.0974, 5.7825, 42 },
 
-    { -1370.9f, -219.793f, 98.4258f, 5.04381f, 43 },  // drek thar
+    { 930.498f, -520.755f, 93.7334f, 1.8326f, 43 },   // 11997 - Stormpike Herald
+    { -1484.1, -699.444, 47.0265, 2.64916, 44 },      // 11998 - Frostwolf Herald
 
-    { -1332.0f, -331.243f, 91.2631f, 1.50098f, 47 },  // 13179 - Wing Commander Guse
-    { -1335.97f, -328.918f, 90.9113f, 1.01474f, 48 }, // 13179 - Wing Commander Jeztor
-    { -1339.39f, -326.361f, 90.7439f, 0.85002f, 49 }, // 13179 - Wing Commander Mulverick
-    { 571.382f, -52.5525f, 38.1889f, 0.579624f, 50 }, // 13437 - Wing Commander Ichman
-    { 572.7764f, -41.2713f, 37.6083f, 4.5694f, 51 },  // 13438 - Wing Commander Slidore
-    { 568.903f, -49.0058f, 38.4363f, 0.279571f, 52 }, // 13438 - Wing Commander Vipore
+    { -1332.0f, -331.243f, 91.2631f, 1.50098f, 45 },  // 13179 - Wing Commander Guse
+    { -1335.97f, -328.918f, 90.9113f, 1.01474f, 46 }, // 13179 - Wing Commander Jeztor
+    { -1339.39f, -326.361f, 90.7439f, 0.85002f, 47 }, // 13179 - Wing Commander Mulverick
+    { 571.382f, -52.5525f, 38.1889f, 0.579624f, 48 }, // 13437 - Wing Commander Ichman
+    { 572.7764f, -41.2713f, 37.6083f, 4.5694f, 49 },  // 13438 - Wing Commander Slidore
+    { 568.903f, -49.0058f, 38.4363f, 0.279571f, 50 }, // 13438 - Wing Commander Vipore
 };
 
-const uint32 BG_AV_StaticCreatureInfo[53] =
+const uint32 BG_AV_StaticCreatureInfo[51] =
 {
     2225,  // Zora Guthrek
     3343,  // Grelkor
@@ -1251,7 +1261,7 @@ const uint32 BG_AV_StaticCreatureInfo[53] =
     11947, // Captain Galvangar
     11948, // Vanndar Stormpike
     11949, // Captain Balinda Stonehearth
-    11997, // Stormpike Herald
+    11946, // Drek'Thar
     12051, // Frostwolf Legionnaire
     12096, // Stormpike Quartermaster
     12097, // Frostwolf Quartermaster
@@ -1279,10 +1289,8 @@ const uint32 BG_AV_StaticCreatureInfo[53] =
     14188, // Dirk Swindle
     14284, // Stormpike Battleguard
     14285, // Frostwolf Battleguard
-    11946, // Drek'Thar
-    11948, // Vanndar Stormpike
-    11947, // Captain Galvangar
-    11949, // Captain Balinda Stonehearth
+    11997, // Stormpike Herald
+    11998, // Frostwolf Herald
     13179, // Wing Commander Guse
     13180, // Wing Commander Jeztor
     13181, // Wing Commander Mulverick
