@@ -24,7 +24,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "World.h"
 
 void UnitAI::AttackStart(Unit* victim)
 {
@@ -411,26 +410,6 @@ void UnitAI::EvadeTimerExpired()
             {
                 creature->SetCannotReachTarget();
                 return;
-            }
-        }
-    }
-
-    // Retail-like: instance trash teleports to its unreachable target instead of evading
-    if (sWorld->getBoolConfig(CONFIG_CREATURE_INSTANCE_TELEPORT_TO_UNREACHABLE_TARGET)
-        && creature->GetMap()->IsDungeon()
-        && !creature->IsDungeonBoss() && !creature->isWorldBoss()
-        && !creature->IsControlledByPlayer())
-    {
-        if (ObjectGuid targetGuid = creature->GetCannotReachTarget())
-        {
-            if (Unit* target = ObjectAccessor::GetUnit(*creature, targetGuid))
-            {
-                if (target->IsAlive() && creature->IsEngagedBy(target))
-                {
-                    creature->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
-                    creature->SetCannotReachTarget();
-                    return;
-                }
             }
         }
     }

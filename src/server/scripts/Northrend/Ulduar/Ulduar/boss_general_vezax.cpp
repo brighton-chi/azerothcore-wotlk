@@ -65,6 +65,7 @@ enum VezaxNpcs
 {
     // NPC_VEZAX                                = 33271,
     // NPC_VEZAX_BUNNY                          = 33500,
+    NPC_SARONITE_ANIMUS                         = 33524,
 };
 
 enum VezaxGOs
@@ -367,7 +368,11 @@ struct npc_ulduar_saronite_animus : public ScriptedAI
     npc_ulduar_saronite_animus(Creature* creature) : ScriptedAI(creature)
     {
         _instance = creature->GetInstanceScript();
+        if (_instance)
+            if (Creature* vezax = _instance->GetCreature(BOSS_VEZAX))
+                vezax->AI()->JustSummoned(me);
         timer = 0;
+        me->SetInCombatWithZone();
     }
 
     InstanceScript* _instance;
@@ -384,8 +389,7 @@ struct npc_ulduar_saronite_animus : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
-            return;
+        UpdateVictim();
 
         timer += diff;
         if (timer >= 2000)
