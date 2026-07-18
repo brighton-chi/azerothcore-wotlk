@@ -7431,21 +7431,22 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     // set position before any AI calls/assistance
     //if (IsCreature())
     //    ToCreature()->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
-    // player-controlled creatures (pets, charms) enter combat on contact instead
-    // (melee swing execution or spell launch/hit, see Unit::AtTargetAttacked)
-    if (creature && !IsControlledByPlayer())
+    if (creature)
     {
         EngageWithTarget(victim);
 
-        creature->SendAIReaction(AI_REACTION_HOSTILE);
+        if (!IsControlledByPlayer())
+        {
+            creature->SendAIReaction(AI_REACTION_HOSTILE);
 
-        /// @todo: Implement aggro range, detection range and assistance range templates
-        if (!(creature->HasFlagsExtra(CREATURE_FLAG_EXTRA_DONT_CALL_ASSISTANCE)))
-            creature->CallAssistance();
+            /// @todo: Implement aggro range, detection range and assistance range templates
+            if (!(creature->HasFlagsExtra(CREATURE_FLAG_EXTRA_DONT_CALL_ASSISTANCE)))
+                creature->CallAssistance();
 
-        creature->SetAssistanceTimer(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_PERIOD));
+            creature->SetAssistanceTimer(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_PERIOD));
 
-        SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+            SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        }
     }
 
     // delay offhand weapon attack by 50% of the base attack time
@@ -10840,7 +10841,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         if (Player const* player = target->GetCharmerOrOwnerPlayerOrPlayerItself())
             isContestedPvp = player->HasPlayerFlag(PLAYER_FLAGS_CONTESTED_PVP);
 
-        if (!isContestedGuard || !isContestedPvp)
+        if (!isContestedGuard && !isContestedPvp)
             return false;
     }
 
@@ -15441,12 +15442,10 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         }
     }
 
-    // While feared/confused the client has no control over the unit,
-    // so a SMSG_MOVE_KNOCK_BACK would be ignored or immediately overridden by the server
-    // side fleeing/confused splines. Perform the knockback server side instead; the
-    // fleeing/confused movement generator resumes once this spline is finalized
-    if (!player || !IsClientControlled())
+    if (!player)
+    {
         GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ);
+    }
     else
     {
         float vcos, vsin;
@@ -15875,6 +15874,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         init.Launch();
         DisableSpline();
         KnockbackFrom(pos.GetPositionX(), pos.GetPositionY(), 10.0f, 20.0f);
+        CastSpell(this, VEHICLE_SPELL_PARACHUTE, true);
     }
 
     // xinef: move fall, should we support all creatures that exited vehicle in air? Currently Quest Drag and Drop only, Air Assault quest

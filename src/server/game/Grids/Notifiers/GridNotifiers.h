@@ -91,11 +91,9 @@ namespace Acore
     {
         Unit& i_unit;
         bool isCreature;
-        bool includePlayers;
-        explicit AIRelocationNotifier(Unit& unit, bool includePlayers = false) : i_unit(unit), isCreature(unit.IsCreature()), includePlayers(includePlayers)  {}
+        explicit AIRelocationNotifier(Unit& unit) : i_unit(unit), isCreature(unit.IsCreature())  {}
         template<class T> void Visit(GridRefMgr<T>&) {}
         void Visit(CreatureMapType&);
-        void Visit(PlayerMapType&);
     };
 
     enum class TeamFilter
