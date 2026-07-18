@@ -987,39 +987,39 @@ enum BG_AV_CreatureIds
     AV_NPC_MARSHAL_ETOWER  = 20,
     AV_NPC_H_MARSHAL_WTOWER = 21,
 
-    AV_NPC_N_MINE_N_1      = 22, // miner
-    AV_NPC_N_MINE_N_2      = 23, // caster
-    AV_NPC_N_MINE_N_3      = 24, // guard
-    AV_NPC_N_MINE_N_4      = 25, // boss = Morloch
+    // AV_NPC_N_MINE_N_1      = 22, // miner
+    // AV_NPC_N_MINE_N_2      = 23, // caster
+    // AV_NPC_N_MINE_N_3      = 24, // guard
+    AV_NPC_N_MINE_N_4      = 22, // boss = Morloch
 
-    AV_NPC_N_MINE_A_1      = 26,
-    AV_NPC_N_MINE_A_2      = 27,
-    AV_NPC_N_MINE_A_3      = 28,
-    AV_NPC_N_MINE_A_4      = 29,
+    // AV_NPC_N_MINE_A_1      = 26,
+    // AV_NPC_N_MINE_A_2      = 27,
+    // AV_NPC_N_MINE_A_3      = 28,
+    AV_NPC_N_MINE_A_4      = 23,
 
-    AV_NPC_N_MINE_H_1      = 30,
-    AV_NPC_N_MINE_H_2      = 31,
-    AV_NPC_N_MINE_H_3      = 32,
-    AV_NPC_N_MINE_H_4      = 33,
+    // AV_NPC_N_MINE_H_1      = 30,
+    // AV_NPC_N_MINE_H_2      = 31,
+    // AV_NPC_N_MINE_H_3      = 32,
+    AV_NPC_N_MINE_H_4      = 24,
 
-    AV_NPC_S_MINE_N_1      = 34,
-    AV_NPC_S_MINE_N_2      = 35,
-    AV_NPC_S_MINE_N_3      = 36,
-    AV_NPC_S_MINE_N_4      = 37, // boss = Snivvle
-    AV_NPC_S_MINE_N_S      = 38, // not used
+    // AV_NPC_S_MINE_N_1      = 34,
+    // AV_NPC_S_MINE_N_2      = 35,
+    // AV_NPC_S_MINE_N_3      = 36,
+    AV_NPC_S_MINE_N_4      = 25, // boss = Snivvle
+    // AV_NPC_S_MINE_N_S      = 38,
 
-    AV_NPC_S_MINE_A_1      = 39,
-    AV_NPC_S_MINE_A_2      = 40,
-    AV_NPC_S_MINE_A_3      = 41,
-    AV_NPC_S_MINE_A_4      = 42,
+    // AV_NPC_S_MINE_A_1      = 39,
+    // AV_NPC_S_MINE_A_2      = 40,
+    // AV_NPC_S_MINE_A_3      = 41,
+    AV_NPC_S_MINE_A_4      = 26,
 
-    AV_NPC_S_MINE_H_1      = 43,
-    AV_NPC_S_MINE_H_2      = 44,
-    AV_NPC_S_MINE_H_3      = 45,
-    AV_NPC_S_MINE_H_4      = 46,
+    // AV_NPC_S_MINE_H_1      = 43,
+    // AV_NPC_S_MINE_H_2      = 44,
+    // AV_NPC_S_MINE_H_3      = 45,
+    AV_NPC_S_MINE_H_4      = 27,
 
-    AV_NPC_HERALD          = 47,
-    AV_NPC_INFO_MAX        = 49
+    AV_NPC_HERALD          = 28,
+    AV_NPC_INFO_MAX        = 30
 };
 
 const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
@@ -1048,39 +1048,39 @@ const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
     14772, // East Frostwolf Warmaster 20
     14777, // West Frostwolf Warmaster 21
 
-    10987, // Irondeep Trogg 22
-    11600, // Irondeep Shaman 23
-    11602, // Irondeep Skullthumper 24
-    11657, // Morloch 25
+    // 10987, // Irondeep Trogg 22
+    // 11600, // Irondeep Shaman 23
+    // 11602, // Irondeep Skullthumper 24
+    11657, // Morloch 22
 
-    13396, // Irondeep Miner 26
-    13098, // Irondeep Surveyor 27
-    13080, // Irondeep Guard 28
-    13078, // Umi Thorson 29
+    // 13396, // Irondeep Miner 26
+    // 13098, // Irondeep Surveyor 27
+    // 13080, // Irondeep Guard 28
+    13078, // Umi Thorson 23
 
-    13397, // Irondeep Peon 30
-    13099, // Irondeep Explorer 31
-    13081, // Irondeep Raider 32
-    13079, // Keetar 33
+    // 13397, // Irondeep Peon
+    // 13099, // Irondeep Explorer
+    // 13081, // Irondeep Raider
+    13079, // Keetar 24
 
-    11603, // Whitewhisker Digger 34
-    11604, // Whitewhisker Geomancer 35
-    10982, // Whitewhisker Vermin 36
-    11677, // Taskmaster Snivvle 37
-    11605, // Whitewhisker Overseer 38 
+    // 11603, // Whitewhisker Digger
+    // 11604, // Whitewhisker Geomancer
+    // 10982, // Whitewhisker Vermin
+    11677, // Taskmaster Snivvle 25
+    // 11605, // Whitewhisker Overseer
 
-    13317, // Coldmine Miner 39
-    13096, // Coldmine Explorer 40
-    13087, // Coldmine Invader 41
-    13086, // Aggi Rumblestomp 42
+    // 13317, // Coldmine Miner
+    // 13096, // Coldmine Explorer
+    // 13087, // Coldmine Invader
+    13086, // Aggi Rumblestomp 26
 
-    13316, // Coldmine Peon 43
-    13097, // Coldmine Surveyor 44
-    13089, // Coldmine Guard 45
-    13088, // Masha Swiftcut 46
+    // 13316, // Coldmine Peon
+    // 13097, // Coldmine Surveyor
+    // 13089, // Coldmine Guard
+    13088, // Masha Swiftcut 27
 
-    14848, // Stormpike Herald 47
-    11998  // Frostwolf Herald 48
+    14848, // Stormpike Herald 28
+    11998  // Frostwolf Herald 29
 };
 
 //x, y, z, o, static_creature_info-id
