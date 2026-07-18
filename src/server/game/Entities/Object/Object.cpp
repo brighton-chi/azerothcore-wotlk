@@ -2334,9 +2334,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     summon->InitSummon();
 
-    // call MoveInLineOfSight for nearby players and creatures; players are visited
-    // first (grid typelist order) so aggressive summons prefer them over pets/totems
-    Acore::AIRelocationNotifier notifier(*summon, true);
+    // call MoveInLineOfSight for nearby creatures
+    Acore::AIRelocationNotifier notifier(*summon);
     Cell::VisitObjects(summon, notifier, GetVisibilityRange());
 
     return summon;
