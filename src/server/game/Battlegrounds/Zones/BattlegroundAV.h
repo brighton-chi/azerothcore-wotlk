@@ -821,10 +821,9 @@ enum BG_AV_CreaturePlace
     AV_CPLACE_TRIGGER18       = 97,
     AV_CPLACE_TRIGGER19       = 98,
 
-    AV_CPLACE_MAX             = 321, // used by Battleground.cpp:1615, causes crash if changed.
-
-    AV_CPLACE_A_BOSS          = 381, // used by BattleGroundTactics.cpp
-    AV_CPLACE_H_BOSS          = 443
+    AV_CPLACE_A_BOSS          = 96, // used by BattleGroundTactics.cpp
+    AV_CPLACE_H_BOSS          = 98,
+    AV_CPLACE_MAX             = 321 // used by Battleground.cpp:1615
 };
 
 //x, y, z, o
@@ -954,72 +953,49 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
     { -768.907f, -363.71f, 90.8949f, 1.07991f },     // tower_point
     { -1302.9f, -316.981f, 113.867f, 2.00713f },     // frostwolf_etower
     { -1297.5f, -266.767f, 114.15f, 3.31044f },      // frostwolf_wtower
-    { -57.7891f, -286.597f, 15.6479f, 6.02139f },    // AV_NPC_A_CAPTAIN balinda
-    { 722.43f, -10.9982f, 50.7046f, 3.42085f },      // AV_NPC_A_BOSS vanndar
-    { -545.23f, -165.35f, 57.7886f, 5.88342f },      // AV_NPC_H_CAPTAIN galvangar
-    { -1370.9f, -219.793f, 98.4258f, 5.04381f }      // AV_NPC_H_BOSS drek thar
+
+    { -57.7891f, -286.597f, 15.6479f, 6.02139f },    // AV_NPC_A_CAPTAIN balinda 95
+    { 722.43f, -10.9982f, 50.7046f, 3.42085f },      // AV_NPC_A_BOSS vanndar 96
+    { -545.23f, -165.35f, 57.7886f, 5.88342f },      // AV_NPC_H_CAPTAIN galvangar 97
+    { -1370.9f, -219.793f, 98.4258f, 5.04381f }      // AV_NPC_H_BOSS drek thar 98
 };
 
 enum BG_AV_CreatureIds
 {
-    AV_NPC_A_GRAVEDEFENSE0 = 0,     // Stormpike defender
-    AV_NPC_A_GRAVEDEFENSE1 = 1,     // Seasoned defender
-    AV_NPC_A_GRAVEDEFENSE2 = 2,     // Veteran defender
-    AV_NPC_A_GRAVEDEFENSE3 = 3,     // Champion defender
-    AV_NPC_A_TOWERDEFENSE  = 4,     // Stormpike bowman
-    AV_NPC_A_CAPTAIN       = 5,     // Balinda
-    AV_NPC_A_BOSS          = 6,     // Vanndar
+    AV_NPC_A_GRAVEDEFENSE0  = 0,     // Stormpike defender
+    AV_NPC_A_GRAVEDEFENSE1  = 1,     // Seasoned defender
+    AV_NPC_A_GRAVEDEFENSE2  = 2,     // Veteran defender
+    AV_NPC_A_GRAVEDEFENSE3  = 3,     // Champion defender
+    AV_NPC_A_TOWERDEFENSE   = 4,     // Stormpike bowman
+    AV_NPC_A_CAPTAIN        = 5,     // Balinda
+    AV_NPC_A_BOSS           = 6,     // Vanndar
 
-    AV_NPC_H_GRAVEDEFENSE0 = 7,     // Frostwolf guardian
-    AV_NPC_H_GRAVEDEFENSE1 = 8,     // Seasoned guardian
-    AV_NPC_H_GRAVEDEFENSE2 = 9,     // Veteran guardian
-    AV_NPC_H_GRAVEDEFENSE3 = 10,    // Champion guardian
-    AV_NPC_H_TOWERDEFENSE  = 11,    // Frostwolf bowman
-    AV_NPC_H_CAPTAIN       = 12,    // Galvangar
-    AV_NPC_H_BOSS          = 13,    // Drek thar
+    AV_NPC_H_GRAVEDEFENSE0  = 7,     // Frostwolf guardian
+    AV_NPC_H_GRAVEDEFENSE1  = 8,     // Seasoned guardian
+    AV_NPC_H_GRAVEDEFENSE2  = 9,     // Veteran guardian
+    AV_NPC_H_GRAVEDEFENSE3  = 10,    // Champion guardian
+    AV_NPC_H_TOWERDEFENSE   = 11,    // Frostwolf bowman
+    AV_NPC_H_CAPTAIN        = 12,    // Galvangar
+    AV_NPC_H_BOSS           = 13,    // Drek thar
 
-    AV_NPC_A_MARSHAL_SOUTH = 14,
-    AV_NPC_MARSHAL_NORTH   = 15,
-    AV_NPC_A_MARSHAL_ICE   = 16,
-    AV_NPC_A_MARSHAL_STONE = 17,
-    AV_NPC_H_MARSHAL_ICE   = 18,
-    AV_NPC_H_MARSHAL_TOWER = 19,
-    AV_NPC_MARSHAL_ETOWER  = 20,
+    AV_NPC_A_MARSHAL_SOUTH  = 14,
+    AV_NPC_MARSHAL_NORTH    = 15,
+    AV_NPC_A_MARSHAL_ICE    = 16,
+    AV_NPC_A_MARSHAL_STONE  = 17,
+    AV_NPC_H_MARSHAL_ICE    = 18,
+    AV_NPC_H_MARSHAL_TOWER  = 19,
+    AV_NPC_MARSHAL_ETOWER   = 20,
     AV_NPC_H_MARSHAL_WTOWER = 21,
 
-    // AV_NPC_N_MINE_N_1      = 22, // miner
-    // AV_NPC_N_MINE_N_2      = 23, // caster
-    // AV_NPC_N_MINE_N_3      = 24, // guard
-    AV_NPC_N_MINE_N_4      = 22, // boss = Morloch
+    AV_NPC_N_MINE_N_4       = 22, // boss = Morloch
+    AV_NPC_N_MINE_A_4       = 23,
+    AV_NPC_N_MINE_H_4       = 24,
+    AV_NPC_S_MINE_N_4       = 25, // boss = Snivvle
+    AV_NPC_S_MINE_A_4       = 26,
+    AV_NPC_S_MINE_H_4       = 27,
 
-    // AV_NPC_N_MINE_A_1      = 26,
-    // AV_NPC_N_MINE_A_2      = 27,
-    // AV_NPC_N_MINE_A_3      = 28,
-    AV_NPC_N_MINE_A_4      = 23,
-
-    // AV_NPC_N_MINE_H_1      = 30,
-    // AV_NPC_N_MINE_H_2      = 31,
-    // AV_NPC_N_MINE_H_3      = 32,
-    AV_NPC_N_MINE_H_4      = 24,
-
-    // AV_NPC_S_MINE_N_1      = 34,
-    // AV_NPC_S_MINE_N_2      = 35,
-    // AV_NPC_S_MINE_N_3      = 36,
-    AV_NPC_S_MINE_N_4      = 25, // boss = Snivvle
-    // AV_NPC_S_MINE_N_S      = 38,
-
-    // AV_NPC_S_MINE_A_1      = 39,
-    // AV_NPC_S_MINE_A_2      = 40,
-    // AV_NPC_S_MINE_A_3      = 41,
-    AV_NPC_S_MINE_A_4      = 26,
-
-    // AV_NPC_S_MINE_H_1      = 43,
-    // AV_NPC_S_MINE_H_2      = 44,
-    // AV_NPC_S_MINE_H_3      = 45,
-    AV_NPC_S_MINE_H_4      = 27,
-
-    AV_NPC_HERALD          = 28,
-    AV_NPC_INFO_MAX        = 30
+    AV_NPC_HERALD           = 28,
+    AV_NPC_INFO_MAX         = 30
 };
 
 const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
@@ -1048,35 +1024,11 @@ const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
     14772, // East Frostwolf Warmaster 20
     14777, // West Frostwolf Warmaster 21
 
-    // 10987, // Irondeep Trogg 22
-    // 11600, // Irondeep Shaman 23
-    // 11602, // Irondeep Skullthumper 24
     11657, // Morloch 22
-
-    // 13396, // Irondeep Miner 26
-    // 13098, // Irondeep Surveyor 27
-    // 13080, // Irondeep Guard 28
     13078, // Umi Thorson 23
-
-    // 13397, // Irondeep Peon
-    // 13099, // Irondeep Explorer
-    // 13081, // Irondeep Raider
     13079, // Keetar 24
-
-    // 11603, // Whitewhisker Digger
-    // 11604, // Whitewhisker Geomancer
-    // 10982, // Whitewhisker Vermin
     11677, // Taskmaster Snivvle 25
-    // 11605, // Whitewhisker Overseer
-
-    // 13317, // Coldmine Miner
-    // 13096, // Coldmine Explorer
-    // 13087, // Coldmine Invader
     13086, // Aggi Rumblestomp 26
-
-    // 13316, // Coldmine Peon
-    // 13097, // Coldmine Surveyor
-    // 13089, // Coldmine Guard
     13088, // Masha Swiftcut 27
 
     14848, // Stormpike Herald 28
