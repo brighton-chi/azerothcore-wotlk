@@ -104,7 +104,7 @@ enum BG_AV_Sounds
 
 enum BG_AV_OTHER_VALUES
 {
-    AV_STATICCPLACE_MAX          = 148,
+    AV_STATICCPLACE_MAX          = 157,
     AV_NORTH_MINE                = 0,
     AV_SOUTH_MINE                = 1,
     AV_MINE_TICK_TIMER           = 45000,
@@ -821,10 +821,9 @@ enum BG_AV_CreaturePlace
     AV_CPLACE_TRIGGER18       = 97,
     AV_CPLACE_TRIGGER19       = 98,
 
-    AV_CPLACE_MAX             = 321, // used by Battleground.cpp:1615, causes crash if changed.
-
-    AV_CPLACE_A_BOSS          = 381, // used by BattleGroundTactics.cpp
-    AV_CPLACE_H_BOSS          = 443
+    AV_CPLACE_A_BOSS          = 96, // used by BattleGroundTactics.cpp
+    AV_CPLACE_H_BOSS          = 98,
+    AV_CPLACE_MAX             = 321 // used by Battleground.cpp:1615
 };
 
 //x, y, z, o
@@ -935,7 +934,7 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
     // Snivvle
     {-848.902f, -92.931f, 68.6325f, 3.33350f}, // 78
 
-    //herald
+    // Stormpike herald
     {-48.459f, -288.802f, 55.47f, 1.0f}, // 79
 
     //triggers
@@ -954,72 +953,49 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
     { -768.907f, -363.71f, 90.8949f, 1.07991f },     // tower_point
     { -1302.9f, -316.981f, 113.867f, 2.00713f },     // frostwolf_etower
     { -1297.5f, -266.767f, 114.15f, 3.31044f },      // frostwolf_wtower
-    { -57.7891f, -286.597f, 15.6479f, 6.02139f },    // AV_NPC_A_CAPTAIN balinda
-    { 722.43f, -10.9982f, 50.7046f, 3.42085f },      // AV_NPC_A_BOSS vanndar
-    { -545.23f, -165.35f, 57.7886f, 5.88342f },      // AV_NPC_H_CAPTAIN galvangar
-    { -1370.9f, -219.793f, 98.4258f, 5.04381f }      // AV_NPC_H_BOSS drek thar
+
+    { -57.7891f, -286.597f, 15.6479f, 6.02139f },    // AV_NPC_A_CAPTAIN balinda 95
+    { 722.43f, -10.9982f, 50.7046f, 3.42085f },      // AV_NPC_A_BOSS vanndar 96
+    { -545.23f, -165.35f, 57.7886f, 5.88342f },      // AV_NPC_H_CAPTAIN galvangar 97
+    { -1370.9f, -219.793f, 98.4258f, 5.04381f }      // AV_NPC_H_BOSS drek thar 98
 };
 
 enum BG_AV_CreatureIds
 {
-    AV_NPC_A_GRAVEDEFENSE0 = 0,     // Stormpike defender
-    AV_NPC_A_GRAVEDEFENSE1 = 1,     // Seasoned defender
-    AV_NPC_A_GRAVEDEFENSE2 = 2,     // Veteran defender
-    AV_NPC_A_GRAVEDEFENSE3 = 3,     // Champion defender
-    AV_NPC_A_TOWERDEFENSE  = 4,     // Stormpike bowman
-    AV_NPC_A_CAPTAIN       = 5,     // Balinda
-    AV_NPC_A_BOSS          = 6,     // Vanndar
+    AV_NPC_A_GRAVEDEFENSE0  = 0,     // Stormpike defender
+    AV_NPC_A_GRAVEDEFENSE1  = 1,     // Seasoned defender
+    AV_NPC_A_GRAVEDEFENSE2  = 2,     // Veteran defender
+    AV_NPC_A_GRAVEDEFENSE3  = 3,     // Champion defender
+    AV_NPC_A_TOWERDEFENSE   = 4,     // Stormpike bowman
+    AV_NPC_A_CAPTAIN        = 5,     // Balinda
+    AV_NPC_A_BOSS           = 6,     // Vanndar
 
-    AV_NPC_H_GRAVEDEFENSE0 = 7,     // Frostwolf guardian
-    AV_NPC_H_GRAVEDEFENSE1 = 8,     // Seasoned guardian
-    AV_NPC_H_GRAVEDEFENSE2 = 9,     // Veteran guardian
-    AV_NPC_H_GRAVEDEFENSE3 = 10,    // Champion guardian
-    AV_NPC_H_TOWERDEFENSE  = 11,    // Frostwolf bowman
-    AV_NPC_H_CAPTAIN       = 12,    // Galvangar
-    AV_NPC_H_BOSS          = 13,    // Drek thar
+    AV_NPC_H_GRAVEDEFENSE0  = 7,     // Frostwolf guardian
+    AV_NPC_H_GRAVEDEFENSE1  = 8,     // Seasoned guardian
+    AV_NPC_H_GRAVEDEFENSE2  = 9,     // Veteran guardian
+    AV_NPC_H_GRAVEDEFENSE3  = 10,    // Champion guardian
+    AV_NPC_H_TOWERDEFENSE   = 11,    // Frostwolf bowman
+    AV_NPC_H_CAPTAIN        = 12,    // Galvangar
+    AV_NPC_H_BOSS           = 13,    // Drek thar
 
-    AV_NPC_A_MARSHAL_SOUTH = 14,
-    AV_NPC_MARSHAL_NORTH   = 15,
-    AV_NPC_A_MARSHAL_ICE   = 16,
-    AV_NPC_A_MARSHAL_STONE = 17,
-    AV_NPC_H_MARSHAL_ICE   = 18,
-    AV_NPC_H_MARSHAL_TOWER = 19,
-    AV_NPC_MARSHAL_ETOWER  = 20,
+    AV_NPC_A_MARSHAL_SOUTH  = 14,
+    AV_NPC_MARSHAL_NORTH    = 15,
+    AV_NPC_A_MARSHAL_ICE    = 16,
+    AV_NPC_A_MARSHAL_STONE  = 17,
+    AV_NPC_H_MARSHAL_ICE    = 18,
+    AV_NPC_H_MARSHAL_TOWER  = 19,
+    AV_NPC_MARSHAL_ETOWER   = 20,
     AV_NPC_H_MARSHAL_WTOWER = 21,
 
-    AV_NPC_N_MINE_N_1      = 22, // miner
-    AV_NPC_N_MINE_N_2      = 23, // caster
-    AV_NPC_N_MINE_N_3      = 24, // guard
-    AV_NPC_N_MINE_N_4      = 25, // boss = Morloch
+    AV_NPC_N_MINE_N_4       = 22, // boss = Morloch
+    AV_NPC_N_MINE_A_4       = 23,
+    AV_NPC_N_MINE_H_4       = 24,
+    AV_NPC_S_MINE_N_4       = 25, // boss = Snivvle
+    AV_NPC_S_MINE_A_4       = 26,
+    AV_NPC_S_MINE_H_4       = 27,
 
-    AV_NPC_N_MINE_A_1      = 26,
-    AV_NPC_N_MINE_A_2      = 27,
-    AV_NPC_N_MINE_A_3      = 28,
-    AV_NPC_N_MINE_A_4      = 29,
-
-    AV_NPC_N_MINE_H_1      = 30,
-    AV_NPC_N_MINE_H_2      = 31,
-    AV_NPC_N_MINE_H_3      = 32,
-    AV_NPC_N_MINE_H_4      = 33,
-
-    AV_NPC_S_MINE_N_1      = 34,
-    AV_NPC_S_MINE_N_2      = 35,
-    AV_NPC_S_MINE_N_3      = 36,
-    AV_NPC_S_MINE_N_4      = 37, // boss = Snivvle
-    AV_NPC_S_MINE_N_S      = 38, // not used
-
-    AV_NPC_S_MINE_A_1      = 39,
-    AV_NPC_S_MINE_A_2      = 40,
-    AV_NPC_S_MINE_A_3      = 41,
-    AV_NPC_S_MINE_A_4      = 42,
-
-    AV_NPC_S_MINE_H_1      = 43,
-    AV_NPC_S_MINE_H_2      = 44,
-    AV_NPC_S_MINE_H_3      = 45,
-    AV_NPC_S_MINE_H_4      = 46,
-
-    AV_NPC_HERALD          = 47,
-    AV_NPC_INFO_MAX        = 48
+    AV_NPC_HERALD           = 28,
+    AV_NPC_INFO_MAX         = 30
 };
 
 const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
@@ -1048,42 +1024,19 @@ const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX] =
     14772, // East Frostwolf Warmaster 20
     14777, // West Frostwolf Warmaster 21
 
-    10987, // Irondeep Trogg 22
-    11600, // Irondeep Shaman 23
-    11602, // Irondeep Skullthumper 24
-    11657, // Morloch 25
+    11657, // Morloch 22
+    13078, // Umi Thorson 23
+    13079, // Keetar 24
+    11677, // Taskmaster Snivvle 25
+    13086, // Aggi Rumblestomp 26
+    13088, // Masha Swiftcut 27
 
-    13396, // Irondeep Miner 26
-    13098, // Irondeep Surveyor 27
-    13080, // Irondeep Guard 28
-    13078, // Umi Thorson 29
-
-    13397, // Irondeep Peon 30
-    13099, // Irondeep Explorer 31
-    13081, // Irondeep Raider 32
-    13079, // Keetar 33
-
-    11603, // Whitewhisker Digger 34
-    11604, // Whitewhisker Geomancer 35
-    10982, // Whitewhisker Vermin 36
-    11677, // Taskmaster Snivvle 37
-    11605, // Whitewhisker Overseer 38 
-
-    13317, // Coldmine Miner 39
-    13096, // Coldmine Explorer 40
-    13087, // Coldmine Invader 41
-    13086, // Aggi Rumblestomp 42
-
-    13316, // Coldmine Peon 43
-    13097, // Coldmine Surveyor 44
-    13089, // Coldmine Guard 45
-    13088, // Masha Swiftcut 46
-
-    14848  // Herald 47
+    14848, // Stormpike Herald 28
+    11998  // Frostwolf Herald 29
 };
 
 //x, y, z, o, static_creature_info-id
-const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 148
+const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 157
 {
     //static creatures
     { -1235.31f, -340.777f, 60.5088f, 3.31613f, 0 }, // 2225 - Zora Guthrek
@@ -1155,7 +1108,7 @@ const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 148
     { -545.23f, -165.35f, 57.7886f, 5.88342f, 12 },   // 11947 - Captain Galvangar
     { 722.43f, -10.9982f, 50.7046f, 3.42085f, 13 },   // 11948 - Vanndar Stormpike
     { -57.7891f, -286.597f, 15.6479f, 6.02139f, 14 }, // 11949 - Captain Balinda Stonehearth
-    { 930.498f, -520.755f, 93.7334f, 1.8326f, 15 },   // 11997 - Stormpike Herald
+    { -1370.9f, -219.793f, 98.4258f, 5.04381f, 15 },  // Drek'Thar
 
     { -554.933, -174.876, 57.9563, 0.465655, 16 },    // 12051 - Frostwolf Legionnaire
     { -536.28, -182.784, 57.9519, 4.85222, 16 },
@@ -1223,18 +1176,27 @@ const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] = // 148
     { -1445.25, -591.668, 51.2814, 6.27423, 42 },
     { -1448.25, -614.268, 51.3558, 1.13232, 42 },
     { -1448.13, -601.626, 51.2171, 5.00434, 42 },
+    { -1486.72, -655.177, 49.0348, 3.65387, 42 },
+    { -1496.52, -664.84, 49.5705, 6.23783, 42 },
+    { -1491.89, -682.146, 47.7207, 0.553317, 42 },
+    { -1481.69, -676.03, 48.8492, 3.27473, 42 },
+    { -1501.71, -712.99, 47.723, 1.87672, 42 },
+    { -1506.73, -706.163, 47.6816, 5.89403, 42 },
+    { -1503.16, -714.369, 48.1781, 1.62146, 42 },
+    { -1508.63, -708.495, 48.0974, 5.7825, 42 },
 
-    { -1370.9f, -219.793f, 98.4258f, 5.04381f, 43 },  // drek thar
+    { 930.498f, -520.755f, 93.7334f, 1.8326f, 43 },   // 11997 - Stormpike Herald
+    { -1484.1, -699.444, 47.0265, 2.64916, 44 },      // 11998 - Frostwolf Herald
 
-    { -1332.0f, -331.243f, 91.2631f, 1.50098f, 47 },  // 13179 - Wing Commander Guse
-    { -1335.97f, -328.918f, 90.9113f, 1.01474f, 48 }, // 13179 - Wing Commander Jeztor
-    { -1339.39f, -326.361f, 90.7439f, 0.85002f, 49 }, // 13179 - Wing Commander Mulverick
-    { 571.382f, -52.5525f, 38.1889f, 0.579624f, 50 }, // 13437 - Wing Commander Ichman
-    { 572.7764f, -41.2713f, 37.6083f, 4.5694f, 51 },  // 13438 - Wing Commander Slidore
-    { 568.903f, -49.0058f, 38.4363f, 0.279571f, 52 }, // 13438 - Wing Commander Vipore
+    { -1332.0f, -331.243f, 91.2631f, 1.50098f, 45 },  // 13179 - Wing Commander Guse
+    { -1335.97f, -328.918f, 90.9113f, 1.01474f, 46 }, // 13179 - Wing Commander Jeztor
+    { -1339.39f, -326.361f, 90.7439f, 0.85002f, 47 }, // 13179 - Wing Commander Mulverick
+    { 571.382f, -52.5525f, 38.1889f, 0.579624f, 48 }, // 13437 - Wing Commander Ichman
+    { 572.7764f, -41.2713f, 37.6083f, 4.5694f, 49 },  // 13438 - Wing Commander Slidore
+    { 568.903f, -49.0058f, 38.4363f, 0.279571f, 50 }, // 13438 - Wing Commander Vipore
 };
 
-const uint32 BG_AV_StaticCreatureInfo[53] =
+const uint32 BG_AV_StaticCreatureInfo[51] =
 {
     2225,  // Zora Guthrek
     3343,  // Grelkor
@@ -1251,7 +1213,7 @@ const uint32 BG_AV_StaticCreatureInfo[53] =
     11947, // Captain Galvangar
     11948, // Vanndar Stormpike
     11949, // Captain Balinda Stonehearth
-    11997, // Stormpike Herald
+    11946, // Drek'Thar
     12051, // Frostwolf Legionnaire
     12096, // Stormpike Quartermaster
     12097, // Frostwolf Quartermaster
@@ -1279,10 +1241,8 @@ const uint32 BG_AV_StaticCreatureInfo[53] =
     14188, // Dirk Swindle
     14284, // Stormpike Battleguard
     14285, // Frostwolf Battleguard
-    11946, // Drek'Thar
-    11948, // Vanndar Stormpike
-    11947, // Captain Galvangar
-    11949, // Captain Balinda Stonehearth
+    11997, // Stormpike Herald
+    11998, // Frostwolf Herald
     13179, // Wing Commander Guse
     13180, // Wing Commander Jeztor
     13181, // Wing Commander Mulverick

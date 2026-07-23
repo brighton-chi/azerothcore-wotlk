@@ -670,6 +670,8 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
 
         SpawnBGObject(static_cast<uint8>(BG_AV_OBJECT_TAURA_A_DUNBALDAR_SOUTH) + ownerId + (2 * tmp), RESPAWN_ONE_DAY);
         SpawnBGObject(static_cast<uint8>(BG_AV_OBJECT_TFLAG_A_DUNBALDAR_SOUTH) + ownerId + (2 * tmp), RESPAWN_ONE_DAY);
+
+        DePopulateNode(node, false);
     }
     else
     {
@@ -698,8 +700,8 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
 void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
 {
     // mine=0 north mine, mine=1 south mine
-
     ASSERT(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
+
     if (teamId == TEAM_ALLIANCE || teamId == TEAM_HORDE)
         PlaySoundToAll((teamId == TEAM_ALLIANCE) ? AV_SOUND_ALLIANCE_GOOD : AV_SOUND_HORDE_GOOD);
 
@@ -711,6 +713,7 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
     SendMineWorldStates(mine);
 
     uint16 boss;
+    uint16 place;
     
     if (mine == AV_NORTH_MINE)
     {
@@ -720,6 +723,8 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
             boss = AV_NPC_N_MINE_H_4;
         else
             boss = AV_NPC_N_MINE_N_4;
+
+        place = AV_CPLACE_MINE_N_3; // 77
     }
     else // (mine == AV_SOUTH_MINE)
     {
@@ -729,9 +734,15 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
             boss = AV_NPC_S_MINE_H_4;
         else
             boss = AV_NPC_S_MINE_N_4;
+
+        place = AV_CPLACE_MINE_S_3; // 78
     }
 
-    AddAVCreature(boss, (mine == AV_NORTH_MINE) ? AV_CPLACE_MINE_N_3 : AV_CPLACE_MINE_S_3);
+    uint16 idx = static_cast<uint16>(place);
+    if (idx < static_cast<uint16>(BgCreatures.size()) && BgCreatures[idx])
+        DelCreature(idx);
+
+    AddAVCreature(boss, place);
 
     if (teamId == TEAM_ALLIANCE || teamId == TEAM_HORDE)
     {
@@ -826,11 +837,15 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
 void BattlegroundAV::DePopulateNode(BG_AV_Nodes node, bool ignoreSpiritGuide)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
-    for (uint8 i = 0; i < 4; i++)
+
+    if (!IsTower(node) || m_Nodes[node].State == POINT_DESTROYED)
     {
-        if (BgCreatures[c_place + i])
+        for (uint8 i = 0; i < 4; i++)
         {
-            DelCreature(c_place + i);
+            if (BgCreatures[c_place + i])
+            {
+                DelCreature(c_place + i);
+            }
         }
     }
 
