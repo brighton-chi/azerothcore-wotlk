@@ -31,10 +31,10 @@ jobs:
     name: ${{ matrix.os }}
     steps:
       - name: Checkout AzerothCore
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Checkout Playerbot Module
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: mod-playerbots/mod-playerbots
           ref: ${{ github.ref_name == 'Playerbot' && 'master' || 'test-staging' }}

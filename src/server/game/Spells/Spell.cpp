@@ -695,6 +695,12 @@ Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags,
 
 Spell::~Spell()
 {
+    // FindMap() check: pending spell events are destroyed after the caster has left the map,
+    // where resolving a unit-summoned caster's owner through ObjectAccessor would assert
+    if (Player* modOwner = (m_caster && m_caster->FindMap()) ? m_caster->GetSpellModOwner() : nullptr)
+        if (modOwner->m_spellModTakingSpell == this)
+            modOwner->SetSpellModTakingSpell(this, false);
+
     // unload scripts
     while (!m_loadedScripts.empty())
     {
@@ -4465,13 +4471,18 @@ void Spell::finish(bool ok)
         return;
     m_spellState = SPELL_STATE_FINISHED;
 
+    // FindMap() check: pending spell events are destroyed after the caster has left the map,
+    // where resolving a unit-summoned caster's owner through ObjectAccessor would assert
+    if (Player* modOwner = (m_caster && m_caster->FindMap()) ? m_caster->GetSpellModOwner() : nullptr)
+        modOwner->SetSpellModTakingSpell(this, false);
+
     Unit* dynObjOwner = (m_caster->GetEntry() == WORLD_TRIGGER && m_originalCaster) ? m_originalCaster : m_caster;
     if (m_spellInfo->IsChanneled())
     {
         dynObjOwner->RemoveDynObject(m_spellInfo->Id);
         m_caster->RemoveGameObject(m_spellInfo->Id, true);
     }
-    
+
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
 

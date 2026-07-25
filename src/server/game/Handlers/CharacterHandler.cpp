@@ -275,7 +275,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         >> createInfo->FacialHair
         >> createInfo->OutfitId;
 
-    if (AccountMgr::IsPlayerAccount(GetSecurity()))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK))
     {
         if (uint32 mask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED))
         {
@@ -319,7 +319,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (AccountMgr::IsPlayerAccount(GetSecurity()))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
         uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
         if ((1 << (createInfo->Race - 1)) & raceMaskDisabled)
@@ -327,7 +327,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             SendCharCreate(CHAR_CREATE_DISABLED);
             return;
         }
+    }
 
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK))
+    {
         uint32 classMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
         if ((1 << (createInfo->Class - 1)) & classMaskDisabled)
         {
@@ -348,13 +351,16 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     uint8 res = ObjectMgr::CheckPlayerName(createInfo->Name, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        SendCharCreate(ResponseCodes(res));
-        return;
+        if (res != CHAR_NAME_RESERVED || !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME))
+        {
+            SendCharCreate(ResponseCodes(res));
+            return;
+        }
     }
 
     // speedup check for heroic class disabled case
     uint32 heroic_free_slots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
-    if (heroic_free_slots == 0 && AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT)
+    if (heroic_free_slots == 0 && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT) && createInfo->Class == CLASS_DEATH_KNIGHT)
     {
         SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
         return;
@@ -362,7 +368,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
     // speedup check for heroic class disabled case
     uint32 req_level_for_heroic = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
-    if (AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT) && createInfo->Class == CLASS_DEATH_KNIGHT
         && req_level_for_heroic > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) && !HasAccountFlag(ACCOUNT_FLAG_DEATH_KNIGHT_OK))
     {
         SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
@@ -418,7 +424,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                     }
                 }
 
-                bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || !AccountMgr::IsPlayerAccount(GetSecurity());
+                bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
                 uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
 
                 std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
@@ -432,9 +438,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                         uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
                         bool const deathKnightFlagAlreadySet = HasAccountFlag(ACCOUNT_FLAG_DEATH_KNIGHT_OK); // Account flag is superior to level requirement.
                         bool hasHeroicReqLevel = (heroicReqLevel == 0) || deathKnightFlagAlreadySet;
-                        bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || !AccountMgr::IsPlayerAccount(GetSecurity());
+                        bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
                         uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-                        bool checkDeathKnightReqs = AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT;
+                        bool checkDeathKnightReqs = !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT) && createInfo->Class == CLASS_DEATH_KNIGHT;
 
                         if (result)
                         {
@@ -520,17 +526,17 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                             }
                         }
 
-            if (checkDeathKnightReqs)
-            {
-                if (!deathKnightFlagAlreadySet && hasHeroicReqLevel)
-                    UpdateAccountFlag(ACCOUNT_FLAG_DEATH_KNIGHT_OK);
+                        if (checkDeathKnightReqs)
+                        {
+                            if (!deathKnightFlagAlreadySet && hasHeroicReqLevel)
+                                UpdateAccountFlag(ACCOUNT_FLAG_DEATH_KNIGHT_OK);
 
-                if (!hasHeroicReqLevel)
-                {
-                    SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
-                    return;
-                }
-            }
+                            if (!hasHeroicReqLevel)
+                            {
+                                SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
+                                return;
+                            }
+                        }
 
                         // Check name uniqueness in the same step as saving to database
                         if (sCharacterCache->GetCharacterGuidByName(createInfo->Name))
@@ -1358,8 +1364,11 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     uint8 res = ObjectMgr::CheckPlayerName(renameInfo->Name, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        SendCharRename(ResponseCodes(res), renameInfo.get());
-        return;
+        if (res != CHAR_NAME_RESERVED || !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME))
+        {
+            SendCharRename(ResponseCodes(res), renameInfo.get());
+            return;
+        }
     }
 
     // Ensure that the character belongs to the current account, that rename at login is enabled
@@ -1698,8 +1707,11 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     ResponseCodes res = static_cast<ResponseCodes>(ObjectMgr::CheckPlayerName(customizeInfo->Name, true));
     if (res != CHAR_NAME_SUCCESS)
     {
-        SendCharCustomize(res, customizeInfo.get());
-        return;
+        if (res != CHAR_NAME_RESERVED || !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME))
+        {
+            SendCharCustomize(res, customizeInfo.get());
+            return;
+        }
     }
 
     // character with this name already exist
@@ -2077,7 +2089,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
         return;
     }
 
-    if (AccountMgr::IsPlayerAccount(GetSecurity()))
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
         uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
         if ((1 << (factionChangeInfo->Race - 1)) & raceMaskDisabled)
@@ -2097,8 +2109,11 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     ResponseCodes res = static_cast<ResponseCodes>(ObjectMgr::CheckPlayerName(factionChangeInfo->Name, true));
     if (res != CHAR_NAME_SUCCESS)
     {
-        SendCharFactionChange(res, factionChangeInfo.get());
-        return;
+        if (res != CHAR_NAME_RESERVED || !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME))
+        {
+            SendCharFactionChange(res, factionChangeInfo.get());
+            return;
+        }
     }
 
     // character with this name already exist
