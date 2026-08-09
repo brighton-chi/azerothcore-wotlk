@@ -191,6 +191,10 @@ public:
                         for (ObjectGuid const& guid : _burningAbyssalsSet)
                             if (Creature* abyssal = instance->GetCreature(guid))
                                 abyssal->DespawnOrUnsummon();
+
+                        // Mag is not engaged while caged, so he gets no evade of his own: drop his countdown here.
+                        if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
+                            magtheridon->AI()->DoAction(ACTION_RESET_ENCOUNTER);
                     }
                 }
             }
@@ -202,12 +206,16 @@ public:
             switch (type)
             {
                 case DATA_CHANNELER_COMBAT:
-                    // Force the encounter start: Mag is ImmuneToPC so SetInCombatWithZone alone may miss JustEngagedWith.
+                    // Force the encounter start: Mag is ImmuneToPC, so his threat refs stay offline and
+                    // JustEngagedWith never fires here - the countdown has to be started explicitly.
                     if (GetBossState(DATA_MAGTHERIDON) != IN_PROGRESS)
                     {
                         SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
                         if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
+                        {
                             magtheridon->SetInCombatWithZone();
+                            magtheridon->AI()->DoAction(ACTION_START_ENCOUNTER);
+                        }
                     }
                     break;
                 case DATA_ACTIVATE_CUBES:
