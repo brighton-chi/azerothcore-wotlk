@@ -166,6 +166,7 @@ struct boss_magtheridon : public BossAI
             context.Repeat(56300ms, 64300ms);
         }).Schedule(55650ms, [this](TaskContext context)
         {
+            Talk(SAY_EMOTE_NOVA);
             DoCastSelf(SPELL_BLAST_NOVA);
             scheduler.DelayAll(10s);
             context.Repeat(54350ms, 55400ms);
@@ -175,46 +176,58 @@ struct boss_magtheridon : public BossAI
         });
     }
 
-    void DoAction(int32 action) override
+    // Single entry point for both release paths - the 2 minute timer and the last Channeler dying.
+    void ReleaseMagtheridon()
     {
-        if (action == ACTION_RELEASE_MAGTHERIDON)
-        {
-            if (_magReleased)
-                return;
+        if (_magReleased)
+            return;
 
-            Talk(SAY_EMOTE_FREE);
-            Talk(SAY_FREE);
-            scheduler.CancelGroup(GROUP_EARLY_RELEASE_CHECK); //cancel regular countdown
-            _magReleased = true;
-            scheduler.Schedule(3s, [this](TaskContext)
-            {
-                ScheduleCombatEvents();
-            });
-        }
-        else if (action == ACTION_BANISH_SELF)
-        {
-            Talk(SAY_BANISH);
-            me->CastSpell(me, SPELL_SHADOW_CAGE_STUN, true);
-        }
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        BossAI::JustEngagedWith(who);
-        Talk(SAY_EMOTE_BEGIN);
-
-        scheduler.Schedule(60s, GROUP_EARLY_RELEASE_CHECK, [this](TaskContext /*context*/)
-        {
-            Talk(SAY_EMOTE_NEARLY);
-        }).Schedule(120s, GROUP_EARLY_RELEASE_CHECK, [this](TaskContext /*context*/)
-        {
-            Talk(SAY_EMOTE_FREE);
-            Talk(SAY_FREE);
-            _magReleased = true;
-        }).Schedule(123s, GROUP_EARLY_RELEASE_CHECK, [this](TaskContext /*context*/)
+        _magReleased = true;
+        scheduler.CancelGroup(GROUP_EARLY_RELEASE_CHECK); //cancel regular countdown
+        Talk(SAY_EMOTE_FREE);
+        Talk(SAY_FREE);
+        scheduler.Schedule(3s, [this](TaskContext /*context*/)
         {
             ScheduleCombatEvents();
         });
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_START_ENCOUNTER:
+                // Sent by the instance when the first Channeler is pulled. Magtheridon is immune to
+                // players while caged, so his threat refs stay offline and JustEngagedWith does not
+                // fire until he is freed - the countdown cannot be hung off it.
+                Talk(SAY_EMOTE_BEGIN);
+                scheduler.Schedule(60s, GROUP_EARLY_RELEASE_CHECK, [this](TaskContext /*context*/)
+                {
+                    Talk(SAY_EMOTE_NEARLY);
+                }).Schedule(120s, GROUP_EARLY_RELEASE_CHECK, [this](TaskContext /*context*/)
+                {
+                    ReleaseMagtheridon();
+                });
+                break;
+            case ACTION_RELEASE_MAGTHERIDON:
+                ReleaseMagtheridon();
+                break;
+            case ACTION_BANISH_SELF:
+                Talk(SAY_BANISH);
+                me->CastSpell(me, SPELL_SHADOW_CAGE_STUN, true);
+                break;
+            case ACTION_RESET_ENCOUNTER:
+                // Wiping on the Channelers leaves Magtheridon unengaged, so he never evades on his
+                // own - drop the pending countdown by hand or he frees himself into an empty room.
+                if (!_magReleased)
+                {
+                    scheduler.CancelGroup(GROUP_EARLY_RELEASE_CHECK);
+                    me->CombatStop(true);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     void UpdateAI(uint32 diff) override
