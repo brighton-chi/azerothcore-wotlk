@@ -11,16 +11,15 @@ AzerothCore is a C++ MMORPG server emulator for World of Warcraft 3.3.5a (WotLK)
 
 Out-of-source build is required (in-source is blocked).
 
-```bash
-mkdir -p build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/azeroth-server -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DSCRIPTS=static -DMODULES=static
-make -j$(nproc) && make install
-```
-
-C++20 required (`CMAKE_CXX_STANDARD 20`). Useful flags: `BUILD_TESTING=ON` (Google Test), `NOPCH=1` (disable precompiled headers). Full set in `conf/dist/config.cmake`. `compile_commands.json` is exported automatically.
-
-Tests (Google Test, in `src/test/`): configure `-DBUILD_TESTING=ON`, then `ctest` or `./src/test/unit_tests` from the build dir.
+- Compiling, configuring, or running tests → `.agents/docs/build.md`
+- Writing or modifying C++ → `.agents/docs/cpp-guidelines.md`
+  - Script work (under `src/server/scripts/`) → also `.agents/docs/cpp-scripts.md`
+- Creating or modifying SQL → `.agents/docs/sql-guidelines.md`
+  - SmartAI work (`smart_scripts` data) → also `.agents/docs/cpp-scripts.md`
+- Reviewing a changeset or PR → `.agents/docs/code-review.md`
+- Self-reviewing a changeset before submission → also `.agents/docs/self-review-rules.md`
+- Touching a subsystem that has a doc in `.agents/docs/systems/` → read that doc too
+- Capturing a lesson or adding/updating agent docs → `.agents/docs/README.md`
 
 ## Repository layout
 
