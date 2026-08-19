@@ -51,11 +51,6 @@ ObjectData const creatureData[] =
     { 0,               0                }
 };
 
-// TEMPORARY TESTING HACK - REVERT BEFORE COMMITTING
-// When true, talking to Jaina/Thrall skips the 8 trash waves and summons the boss immediately.
-// Only affects the four standard 9-wave blocks; the Overrun (retreat) and Night Elf waves are untouched.
-constexpr bool SKIP_TRASH_WAVES = true;
-
 Milliseconds hyjalWaveTimers[4][MAX_WAVES_STANDARD]
 {
     { 130s, 130s, 130s, 130s, 130s, 130s, 130s, 190s, 0ms },    // Winterchill
@@ -528,11 +523,6 @@ public:
             // No overlapping!
             scheduler.CancelGroup(CONTEXT_GROUP_WAVES);
             _trash = 0;    // Reset counter here to avoid resetting the counter from scheduled waves. Required because creatures killed for RP events counts towards the kill counter as well, confirmed in Retail.
-
-            // TEMPORARY TESTING HACK - REVERT BEFORE COMMITTING
-            // Jump straight to the last wave of the block, which is the boss itself (summon groups 8/17/26/35).
-            if (SKIP_TRASH_WAVES && maxWaves == MAX_WAVES_STANDARD)
-                _currentWave = MAX_WAVES_STANDARD - 1;
 
             scheduler.Schedule(1ms, [this, startWaves, maxWaves, timerptr](TaskContext context)
                 {
