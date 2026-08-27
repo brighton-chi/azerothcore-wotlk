@@ -232,6 +232,7 @@ public:
         bool _leviathanOutroSpawned;
         bool _leviathanSequenceStarted;
         ObjectGuid _formationRhydianGUID;
+        ObjectGuid _leviathanMachineGUID;
 
         // Hodir
         bool _hmHodir;
@@ -257,6 +258,7 @@ public:
             _leviathanOutroSpawned = false;
             _leviathanSequenceStarted = false;
             _formationRhydianGUID.Clear();
+            _leviathanMachineGUID.Clear();
 
             // Hodir
             _hmHodir = true; // If players fail the Hardmode then becomes false
@@ -291,6 +293,18 @@ public:
                 if (GameObject* beacon = instance->GetGameObject(guid))
                     beacon->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED, nullptr, true);
             _leviathanBeaconGUIDs.clear();
+        }
+
+        void SetLeviathanVehiclesUsable(bool usable)
+        {
+            for (ObjectGuid const& guid : _leviathanVehicles)
+                if (Creature* vehicle = instance->GetCreature(guid))
+                {
+                    if (usable)
+                        vehicle->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                    else
+                        vehicle->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                }
         }
 
         void SpawnLeviathanOutro(bool justKilled)
@@ -333,16 +347,8 @@ public:
             if (justKilled)
             {
                 StartLeviathanOutroSequence();
-                scheduler.Schedule(61s, [this](TaskContext /*context*/)
-                {
-                    instance->SummonCreatureGroup(SUMMON_GROUP_LEVIATHAN_OUTRO_STALKER);
-                    instance->SummonGameObjectGroup(GO_SUMMON_GROUP_LEVIATHAN_TELEPORTER);
-                });
                 return;
             }
-
-            instance->SummonCreatureGroup(SUMMON_GROUP_LEVIATHAN_OUTRO_STALKER);
-            instance->SummonGameObjectGroup(GO_SUMMON_GROUP_LEVIATHAN_TELEPORTER);
 
             // On later visits the landing, march and dialogue replay once someone approaches the Formation Grounds
             scheduler.Schedule(2s, [this](TaskContext context)
@@ -371,10 +377,16 @@ public:
 
             _leviathanSequenceStarted = true;
 
-            // The crew runs into its formation slots, paired by group row order
+            // The crew runs its sniffed column routes into the formation slots, paired by group row order
+            static uint32 const marchPaths[] =
+            {
+                3414401, 3414402, 3414403, 3414404, 3414405, 3414406,
+                3414501, 3414502, 3414503, 3414504, 3414505, 3414506
+            };
             if (std::vector<TempSummonData> const* formation = sObjectMgr->GetSummonGroup(MAP_ULDUAR, SUMMONER_TYPE_MAP, SUMMON_GROUP_LEVIATHAN_OUTRO))
             {
                 auto slot = formation->begin();
+                uint8 pathIndex = 0;
                 for (ObjectGuid const& guid : _leviathanCrewGUIDs)
                 {
                     Creature* crew = instance->GetCreature(guid);
@@ -382,14 +394,25 @@ public:
                         continue;
                     while (slot != formation->end() && slot->entry != crew->GetEntry())
                         ++slot;
-                    if (slot == formation->end())
+                    if (slot == formation->end() || pathIndex >= sizeof(marchPaths) / sizeof(marchPaths[0]))
                         break;
                     crew->SetHomePosition(slot->pos);
-                    crew->GetMotionMaster()->MovePoint(0, slot->pos, FORCED_MOVEMENT_RUN);
+                    crew->GetMotionMaster()->MovePath(marchPaths[pathIndex], FORCED_MOVEMENT_RUN);
                     ++slot;
+                    ++pathIndex;
                 }
             }
             _leviathanCrewGUIDs.clear();
+
+            // The machine flies its sniffed arc over the grounds and reaches the descent point at ~36s
+            std::list<TempSummon*> machine;
+            instance->SummonCreatureGroup(SUMMON_GROUP_LEVIATHAN_OUTRO_MACHINE, &machine);
+            if (!machine.empty())
+            {
+                _leviathanMachineGUID = machine.front()->GetGUID();
+                machine.front()->SetCanFly(true);
+                machine.front()->GetMotionMaster()->MovePath(PATH_FLYING_MACHINE_APPROACH);
+            }
 
             scheduler.Schedule(13s, [this](TaskContext /*context*/)
             {
@@ -398,17 +421,10 @@ public:
                     rhydian->SetHomePosition({ 239.31581f, -123.64426f, 409.80365f, 3.104f });
                     rhydian->GetMotionMaster()->MovePath(PATH_RHYDIAN_TO_BRANN, FORCED_MOVEMENT_WALK);
                 }
-            }).Schedule(34s, [this](TaskContext /*context*/)
+            }).Schedule(36s, [this](TaskContext /*context*/)
             {
-                std::list<TempSummon*> machine;
-                instance->SummonCreatureGroup(SUMMON_GROUP_LEVIATHAN_OUTRO_MACHINE, &machine);
-                if (!machine.empty())
-                {
-                    Creature* flyingMachine = machine.front();
-                    flyingMachine->SetCanFly(true);
-                    float const groundZ = flyingMachine->GetMapHeight(flyingMachine->GetPositionX(), flyingMachine->GetPositionY(), flyingMachine->GetPositionZ());
-                    flyingMachine->GetMotionMaster()->MoveLand(0, { flyingMachine->GetPositionX(), flyingMachine->GetPositionY(), groundZ });
-                }
+                if (Creature* flyingMachine = instance->GetCreature(_leviathanMachineGUID))
+                    flyingMachine->GetMotionMaster()->MoveLand(0, { 246.4216f, -80.03793f, 409.80365f });
             }).Schedule(39s, [this](TaskContext /*context*/)
             {
                 std::list<TempSummon*> brann;
@@ -452,6 +468,9 @@ public:
         {
             if (IsBossDone(BOSS_LEVIATHAN))
                 SpawnLeviathanOutro(false);
+            // The salvaged vehicles wait for the raid at the Expedition Base Camp, they are not tied to Brann's intro
+            else if (GetBossState(BOSS_LEVIATHAN) != SPECIAL && _leviathanVehicles.empty())
+                SpawnLeviathanEncounterVehicles(VEHICLE_POS_START);
 
             // mimiron tram:
             if (GameObject* MimironTram = GetGameObject(DATA_MIMIRON_TRAM))
@@ -899,6 +918,13 @@ public:
                 case DATA_VEHICLE_SPAWN:
                     SpawnLeviathanEncounterVehicles(data);
                     return;
+                case DATA_LEVIATHAN_VEHICLES_USABLE:
+                    // Archmage Pentarus has just answered Brann, the crews get a moment to reach the vehicles
+                    scheduler.Schedule(3s, [this](TaskContext /*context*/)
+                    {
+                        SetLeviathanVehiclesUsable(true);
+                    });
+                    return;
                 case DATA_DESPAWN_ALGALON:
                     DoUpdateWorldState(WORLD_STATE_ULDUAR_ALGALON_TIMER_ENABLED, 1);
                     DoUpdateWorldState(WORLD_STATE_ULDUAR_ALGALON_DESPAWN_TIMER, 60);
@@ -1215,25 +1241,25 @@ public:
 
 const Position vehiclePositions[30] =
 {
-    // Start Positions
+    // Start Positions (Sniffed)
     // Siege
     {-814.592f, -64.5436f, 429.927f, 5.96903f},
-    {-784.371f, -33.3111f, 429.927f, 5.09636f},
+    {-784.746f, -33.7638f, 429.926f, 5.09636f},
     {-813.698f, -86.8924f, 430.158f, 6.0912f},
-    {-739.3f, -21.51f, 429.927f, 4.86947f},
+    {-720.126f, -14.5091f, 429.926f, 4.85201f},
     {-756.948f, -27.9419f, 429.927f, 5.07891f},
     // Chopper
-    {-717.556f, -111.2f, 430.157f, 0.0910799f},
+    {-718.451f, -112.609f, 430.231f, 0.1745329f},
     {-717.833f, -106.567f, 430.024f, 0.122173f},
-    {-718.451f, -118.248f, 430.27f, 0.05236f},
-    {-717.337f, -113.591f, 430.279f, 0.0910799f},
-    {-717.076f, -116.456f, 430.361f, 0.0910799f},
+    {-718.451f, -118.248f, 430.2697f, 0.052359f},
+    {-718.307f, -124.421f, 430.1585f, 0.174532f},
+    {-718.000f, -130.715f, 429.9037f, 0.134259f}, // Not Sniffed
     // Demolisher
     {-766.702f, -225.033f, 430.503f, 1.71042f},
-    {-729.545f, -186.269f, 430.128f, 1.90241f},
+    {-729.545f, -186.269f, 430.128f, 2.93406f},
     {-793.69f, -240.574f, 430.981f, 1.64061f},
     {-719.747f, -165.845f, 430.135f, 1.95477f},
-    {-732.267f, -203.694f, 432.463f, 2.07694f},
+    {-746.234f, -211.748f, 431.754f, 1.83259f},
     // Leviathan Positions
     // Siege
     {119.8f, 38.37f, 409.803f, 0.0f},
@@ -1287,6 +1313,10 @@ void instance_ulduar::instance_ulduar_InstanceMapScript::SpawnLeviathanEncounter
                 _leviathanVehicles.push_back(veh->GetGUID());
             }
         }
+
+        // The raid may look the vehicles over on arrival, but cannot board them until the Kirin Tor say so
+        if (mode == VEHICLE_POS_START && GetPersistentData(PERSISTENT_DATA_MAGE_BARRIER) != MAGE_BARRIER_LOWERED)
+            SetLeviathanVehiclesUsable(false);
     }
 }
 
