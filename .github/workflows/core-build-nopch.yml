@@ -67,8 +67,12 @@ jobs:
         include:
           - os: ubuntu-26.04
             compiler:
-              CC: clang-20
-              CXX: clang++-20
+              CC: gcc-15
+              CXX: g++-15
+          - os: ubuntu-26.04
+            compiler:
+              CC: clang-21
+              CXX: clang++-21
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }}-${{ matrix.compiler.CC }}-nopch
     if: github.repository == 'mod-playerbots/azerothcore-wotlk' && !github.event.pull_request.draft
@@ -79,6 +83,7 @@ jobs:
           CC: ${{ matrix.compiler.CC }}
           CXX: ${{ matrix.compiler.CXX }}
           pch: false
+          modules: true  # optional: include module compilation if desired
 
   e2e:
     name: e2e ${{ inputs.scope || 'full' }}
