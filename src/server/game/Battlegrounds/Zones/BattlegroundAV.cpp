@@ -989,6 +989,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     SpawnBGObject(object, RESPAWN_ONE_DAY);
 
     DefendNode(node, teamId);
+    DePopulateNode(node, false);
     PopulateNode(node);
     UpdateNodeWorldState(node);
 
