@@ -106,9 +106,17 @@ public:
 
         void OnCreatureEvade(Creature* creature) override
         {
-            // Phase-1 wipe signal: Mag is ImmuneToPC so BossAI evade does not fire; a Channeler evade is the trigger.
-            if (creature->GetEntry() == NPC_HELLFIRE_CHANNELER && GetBossState(DATA_MAGTHERIDON) == IN_PROGRESS)
-                SetBossState(DATA_MAGTHERIDON, NOT_STARTED);
+            if (creature->GetEntry() != NPC_HELLFIRE_CHANNELER || GetBossState(DATA_MAGTHERIDON) != IN_PROGRESS)
+                return;
+
+            // Only a Channeler-phase wipe resets the encounter. Past the 2 minute auto-release
+            // Magtheridon is loose with Channelers still up, and resetting there would deactivate
+            // the Manticron Cubes and open the door mid-fight.
+            if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
+                if (!magtheridon->IsImmuneToPC())
+                    return;
+
+            SetBossState(DATA_MAGTHERIDON, NOT_STARTED);
         }
 
         void OnGameObjectCreate(GameObject* go) override
@@ -192,7 +200,7 @@ public:
                             if (Creature* abyssal = instance->GetCreature(guid))
                                 abyssal->DespawnOrUnsummon();
 
-                        // Mag is not engaged while caged, so he gets no evade of his own: drop his countdown here.
+                        // Nudge a still-caged Magtheridon out of combat so he evades and resets himself.
                         if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
                             magtheridon->AI()->DoAction(ACTION_RESET_ENCOUNTER);
                     }
@@ -206,16 +214,14 @@ public:
             switch (type)
             {
                 case DATA_CHANNELER_COMBAT:
-                    // Force the encounter start: Mag is ImmuneToPC, so his threat refs stay offline and
-                    // JustEngagedWith never fires here - the countdown has to be started explicitly.
+                    // Start the encounter on the Channeler pull. The combat references this creates are
+                    // what engage Magtheridon (see boss_magtheridon::JustEnteredCombat), so his release
+                    // countdown is anchored here rather than to whenever players can first hit him.
                     if (GetBossState(DATA_MAGTHERIDON) != IN_PROGRESS)
                     {
                         SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
                         if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
-                        {
                             magtheridon->SetInCombatWithZone();
-                            magtheridon->AI()->DoAction(ACTION_START_ENCOUNTER);
-                        }
                     }
                     break;
                 case DATA_ACTIVATE_CUBES:
