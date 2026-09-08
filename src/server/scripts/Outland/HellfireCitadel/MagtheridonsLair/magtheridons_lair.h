@@ -47,8 +47,7 @@ enum MagtheridonActions
 {
     ACTION_RELEASE_MAGTHERIDON      = 1,
     ACTION_BANISH_SELF              = 2,
-    ACTION_START_ENCOUNTER          = 3,
-    ACTION_RESET_ENCOUNTER          = 4
+    ACTION_RESET_ENCOUNTER          = 3
 };
 
 enum GoIds
