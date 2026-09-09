@@ -236,10 +236,15 @@ struct boss_magtheridon : public BossAI
                 break;
             case ACTION_RESET_ENCOUNTER:
                 // A Channeler wipe can leave Magtheridon holding a reference to a survivor who got
-                // out of the room, which would keep the countdown running. Dropping combat lets the
-                // next UpdateVictim() tick take BossAI's evade; a freed Magtheridon fights on.
+                // out of the room, which would keep the countdown running. Drop it here rather than
+                // waiting for the evade below, or a countdown expiring on this very tick still frees
+                // him. Dropping combat then lets the next UpdateVictim() tick take BossAI's evade,
+                // which does the full reset; a freed Magtheridon fights on.
                 if (!_magReleased)
+                {
+                    scheduler.CancelGroup(GROUP_EARLY_RELEASE_CHECK);
                     me->CombatStop(true);
+                }
                 break;
             default:
                 break;
