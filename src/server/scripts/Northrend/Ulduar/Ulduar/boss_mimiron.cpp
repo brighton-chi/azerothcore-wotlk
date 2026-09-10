@@ -445,8 +445,6 @@ struct boss_mimiron : public BossAI
             case EVENT_BERSERK:
                 _berserk = true;
                 Talk(SAY_BERSERK);
-                if (_hardmode)
-                    me->SummonCreature(33576, 2744.78f, 2569.47f, 364.32f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 120000);
                 events.ScheduleEvent(EVENT_BERSERK_2, 0ms);
                 break;
             case EVENT_BERSERK_2:
@@ -736,7 +734,6 @@ struct boss_mimiron : public BossAI
                     me->GetMotionMaster()->Clear();
                     summons.DoAction(1337); // despawn summons of summons
                     summons.DespawnEntry(NPC_FLAMES_INITIAL);
-                    summons.DespawnEntry(33576);
 
                     me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
