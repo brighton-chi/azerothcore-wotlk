@@ -188,7 +188,6 @@ struct boss_magtheridon : public BossAI
             return;
 
         _magReleased = true;
-        scheduler.CancelGroup(GROUP_EARLY_RELEASE_CHECK); //cancel regular countdown
         Talk(SAY_EMOTE_FREE);
         Talk(SAY_FREE);
         scheduler.Schedule(3s, [this](TaskContext /*context*/)
@@ -223,11 +222,20 @@ struct boss_magtheridon : public BossAI
         });
     }
 
+    // The instance needs the release state before ScheduleCombatEvents() drops his PC immunity.
+    uint32 GetData(uint32 type) const override
+    {
+        return type == DATA_MAGTHERIDON_RELEASED ? uint32(_magReleased) : 0;
+    }
+
     void DoAction(int32 action) override
     {
         switch (action)
         {
             case ACTION_RELEASE_MAGTHERIDON:
+                // The Channelers died before the countdown ran out, so drop what is left of it:
+                // otherwise the pending 60s task still announces him as nearly free once he is free.
+                scheduler.CancelGroup(GROUP_EARLY_RELEASE_CHECK);
                 ReleaseMagtheridon();
                 break;
             case ACTION_BANISH_SELF:
@@ -235,15 +243,20 @@ struct boss_magtheridon : public BossAI
                 me->CastSpell(me, SPELL_SHADOW_CAGE_STUN, true);
                 break;
             case ACTION_RESET_ENCOUNTER:
-                // A Channeler wipe can leave Magtheridon holding a reference to a survivor who got
-                // out of the room, which would keep the countdown running. Drop it here rather than
-                // waiting for the evade below, or a countdown expiring on this very tick still frees
-                // him. Dropping combat then lets the next UpdateVictim() tick take BossAI's evade,
-                // which does the full reset; a freed Magtheridon fights on.
-                if (!_magReleased)
+                // Reset him here instead of leaving it to the evade the next UpdateVictim() tick
+                // would take: he carries CREATURE_FLAG_EXTRA_HARD_RESET, so evading despawns him
+                // for 20s, and a re-pull inside that window finds nothing to engage - no countdown -
+                // then hard-resets the room the moment he respawns. EngagementOver() has to precede
+                // Reset(), because BossAI::_Reset() bails on an engaged creature, and Reset() clears
+                // the pending countdown through its scheduler.CancelAll().
+                // The IsEngaged() guard also keeps this inert when Reset() re-enters it through
+                // instance->SetBossState(NOT_STARTED) on a post-release evade, where the engagement
+                // is already over. A freed Magtheridon fights on.
+                if (!_magReleased && IsEngaged())
                 {
-                    scheduler.CancelGroup(GROUP_EARLY_RELEASE_CHECK);
                     me->CombatStop(true);
+                    EngagementOver();
+                    Reset();
                 }
                 break;
             default:

@@ -30,7 +30,8 @@ enum DataTypes
 
     DATA_CHANNELER_COMBAT           = 10,
     DATA_ACTIVATE_CUBES             = 11,
-    DATA_COLLAPSE                   = 12
+    DATA_COLLAPSE                   = 12,
+    DATA_MAGTHERIDON_RELEASED       = 13
 };
 
 enum NpcIds

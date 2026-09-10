@@ -113,7 +113,7 @@ public:
             // Magtheridon is loose with Channelers still up, and resetting there would deactivate
             // the Manticron Cubes and open the door mid-fight.
             if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
-                if (!magtheridon->IsImmuneToPC())
+                if (magtheridon->AI()->GetData(DATA_MAGTHERIDON_RELEASED))
                     return;
 
             SetBossState(DATA_MAGTHERIDON, NOT_STARTED);
@@ -200,7 +200,7 @@ public:
                             if (Creature* abyssal = instance->GetCreature(guid))
                                 abyssal->DespawnOrUnsummon();
 
-                        // Nudge a still-caged Magtheridon out of combat so he evades and resets himself.
+                        // Reset a still-caged Magtheridon: he is engaged from the Channeler pull on.
                         if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
                             magtheridon->AI()->DoAction(ACTION_RESET_ENCOUNTER);
                     }
