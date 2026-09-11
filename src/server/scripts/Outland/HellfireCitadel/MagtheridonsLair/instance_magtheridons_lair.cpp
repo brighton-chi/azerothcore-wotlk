@@ -109,9 +109,9 @@ public:
             if (creature->GetEntry() != NPC_HELLFIRE_CHANNELER || GetBossState(DATA_MAGTHERIDON) != IN_PROGRESS)
                 return;
 
-            // Only a Channeler-phase wipe resets the encounter. Past the 2 minute auto-release
-            // Magtheridon is loose with Channelers still up, and resetting there would deactivate
-            // the Manticron Cubes and open the door mid-fight.
+            // Only a Channeler-phase wipe resets the encounter. Past the 2 minute auto-release he is
+            // loose with Channelers still up, and a reset there would disable the Manticron Cubes and
+            // open the door mid-fight.
             if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
                 if (magtheridon->AI()->GetData(DATA_MAGTHERIDON_RELEASED))
                     return;
@@ -214,9 +214,9 @@ public:
             switch (type)
             {
                 case DATA_CHANNELER_COMBAT:
-                    // Start the encounter on the Channeler pull. The combat references this creates are
-                    // what engage Magtheridon (see boss_magtheridon::JustEnteredCombat), so his release
-                    // countdown is anchored here rather than to whenever players can first hit him.
+                    // Start the encounter on the Channeler pull. The combat references this creates
+                    // engage Magtheridon (boss_magtheridon::JustEnteredCombat), which anchors his
+                    // release countdown here and not to when players can first hit him.
                     if (GetBossState(DATA_MAGTHERIDON) != IN_PROGRESS)
                     {
                         SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
