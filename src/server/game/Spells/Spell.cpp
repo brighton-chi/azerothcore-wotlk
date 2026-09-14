@@ -3864,7 +3864,6 @@ void Spell::cancel(bool bySelf)
         *m_selfContainer = nullptr;
 
     // Do not remove current far sight object (already done in Spell::EffectAddFarsight) to prevent from reset viewpoint to player
-    Unit* dynObjOwner = (m_caster->GetEntry() == WORLD_TRIGGER && m_originalCaster) ? m_originalCaster : m_caster;
     if (!(bySelf && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_FARSIGHT)))
     {
         if (unitCaster)
