@@ -31,6 +31,7 @@ enum DatabaseHook
     DATABASEHOOK_ON_MODULE_DATABASES_KEEPALIVE,
     DATABASEHOOK_ON_MODULE_DATABASES_CLOSING,
     DATABASEHOOK_ON_DATABASE_WARN_ABOUT_SYNC_QUERIES,
+    DATABASEHOOK_ON_DATABASE_SELECT_INDEX_LOGOUT,
     DATABASEHOOK_ON_DATABASE_GET_DB_REVISION,
     DATABASEHOOK_END
 };
@@ -84,6 +85,17 @@ public:
      * @param apply True when the warning is being enabled
      */
     virtual void OnDatabaseWarnAboutSyncQueries(bool /*apply*/) { }
+
+    /**
+     * @brief Called on logout to pick the statement that marks the character offline. The core
+     * marks the whole account offline; a module whose characters share an account (playerbots)
+     * can switch to a per-character statement so the others stay online.
+     *
+     * @param player The player logging out
+     * @param statementIndex CharacterDatabaseStatements index to execute
+     * @param statementParam Value bound to the statement's first parameter
+     */
+    virtual void OnDatabaseSelectIndexLogout(Player* /*player*/, uint32& /*statementIndex*/, uint32& /*statementParam*/) { }
 
     /**
      * @brief Called by .server info to collect the revision of a module-owned database.
