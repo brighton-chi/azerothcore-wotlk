@@ -65,8 +65,6 @@ private:
     ObjectGuid _chargeTargetGUID;
     ForcedMovement _forcedMovement;
     std::optional<AnimTier> _animTier;
-    // mod-playerbots: used by MotionMaster::MovePointBackwards to make the unit walk backwards
-    bool _reverseOrientation;
     bool _stalled{};
     bool _hasBeenStalled{};
     std::optional<int32> _pauseTime;
