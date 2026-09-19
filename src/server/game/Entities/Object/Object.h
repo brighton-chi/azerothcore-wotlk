@@ -667,6 +667,7 @@ public:
 
     void SetPositionDataUpdate();
     void UpdatePositionData();
+    [[nodiscard]] bool IsPositionDataUpdatePending() const { return _updatePositionData; }
 
     bool AddToObjectUpdate() override;
     void RemoveFromObjectUpdate() override;

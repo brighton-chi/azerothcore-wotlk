@@ -395,7 +395,6 @@ void Group::RemoveInvite(Player* player)
         player->SetGroupInvite(nullptr);
 }
 
-
 void Group::RemoveAllInvites()
 {
     for (Player* invitee : m_invitees)
