@@ -3895,8 +3895,8 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
                         InterruptSpell(CURRENT_MELEE_SPELL);
                     }
                 }
-
-                AddUnitState(UNIT_STATE_CASTING);
+                if (pSpell->GetCastTime() > 0)
+                    AddUnitState(UNIT_STATE_CASTING);
 
                 break;
             }
