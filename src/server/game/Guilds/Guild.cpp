@@ -1330,8 +1330,7 @@ void Guild::HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo)
     {
         player->ModifyMoney(-int32(EMBLEM_PRICE));
 
-        m_emblemInfo = emblemInfo;
-        m_emblemInfo.SaveToDB(m_id);
+        HandleSetEmblem(emblemInfo);
 
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_SUCCESS); // "Guild Emblem saved."
 
@@ -1414,27 +1413,27 @@ void Guild::HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string_v
     }
 }
 
-void Guild::HandleSetRankInfo(uint8 rankId, uint32 rights, std::string_view name, uint32 moneyPerDay)
+void Guild::HandleSetRankInfo(uint8 rankId, Optional<std::string_view> name, Optional<uint32> rights,
+    Optional<uint32> moneyPerDay)
 {
-    if (RankInfo* rankInfo = GetRankInfo(rankId))
-    {
-        if (!name.empty())
-        {
-            rankInfo->SetName(name);
-        }
+    RankInfo* rankInfo = GetRankInfo(rankId);
+    if (!rankInfo)
+        return;
 
-        if (rights > 0)
-        {
-            rankInfo->SetRights(rights);
-        }
+    if (!name && !rights && !moneyPerDay)
+        return;
 
-        if (moneyPerDay > 0)
-        {
-            _SetRankBankMoneyPerDay(rankId, moneyPerDay);
-        }
+    if (name)
+        rankInfo->SetName(*name);
 
-        _BroadcastEvent(GE_RANK_UPDATED, ObjectGuid::Empty, std::to_string(rankId), rankInfo->GetName(), std::to_string(m_ranks.size()));
-    }
+    if (rights)
+        rankInfo->SetRights(*rights);
+
+    if (moneyPerDay)
+        _SetRankBankMoneyPerDay(rankId, *moneyPerDay);
+
+    _BroadcastEvent(GE_RANK_UPDATED, ObjectGuid::Empty, std::to_string(rankId), rankInfo->GetName(),
+        std::to_string(m_ranks.size()));
 }
 
 void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
@@ -2669,15 +2668,17 @@ bool Guild::MemberHasTabRights(ObjectGuid guid, uint8 tabId, uint32 rights) cons
 
 bool Guild::HasRankRight(Player* player, uint32 right) const
 {
-    if (player)
-    {
-        if (Member const* member = GetMember(player->GetGUID()))
-        {
-            return (GetRankRights(member->GetRankId()) & right) != GR_RIGHT_EMPTY;
-        }
-    }
+    return _HasRankRight(player, right);
+}
 
-    return false;
+uint32 Guild::GetRankRights(uint8 rankId) const
+{
+    return _GetRankRights(rankId);
+}
+
+bool Guild::MemberHasTabRights(ObjectGuid guid, uint8 tabId, uint32 rights) const
+{
+    return _MemberHasTabRights(guid, tabId, rights);
 }
 
 // Add new event log record
