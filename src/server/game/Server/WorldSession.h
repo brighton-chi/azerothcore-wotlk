@@ -31,7 +31,6 @@
 #include "Duration.h"
 #include "GossipDef.h"
 #include "Packet.h"
-#include "QueryHolder.h"
 #include "SharedDefines.h"
 #include "World.h"
 #include <map>
