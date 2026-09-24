@@ -30,7 +30,6 @@
 #include "DatabaseEnv.h"
 #include "Duration.h"
 #include "GossipDef.h"
-#include "QueryHolder.h"
 #include "Packet.h"
 #include "SharedDefines.h"
 #include "World.h"
@@ -1214,8 +1213,6 @@ public:                                                 // opcodes handlers
     bool IsKicked() const { return _kicked; }
     void SetKicked(bool val) { _kicked = val; }
     bool IsSocketClosed() const;
-
-    void SetAddress(std::string const& address) { m_Address = address; }
 
     /*
      * CALLBACKS
