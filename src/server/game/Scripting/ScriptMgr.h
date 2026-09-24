@@ -109,7 +109,7 @@ class PlayerbotScript : public ScriptObject
 {
 protected:
 
-    PlayerbotScript(const char* name);
+    PlayerbotScript(char const* name);
 
 public:
     bool IsDatabaseBound() const { return false; }
