@@ -294,11 +294,20 @@ void CreatureGroup::MemberEvaded(Creature* member)
         return;
     }
 
-    for (auto const& itr : m_members)
+    // Copy the member list first: Respawn() below takes the member out of the
+    // world, which erases it from m_members and would invalidate this loop.
+    CreatureGroupMemberType members = m_members;
+
+    for (auto const& itr : members)
     {
         Creature* pMember = itr.first;
         // This should never happen
         if (!pMember)
+            continue;
+
+        // A previous member's Respawn() or EnterEvadeMode() may have removed
+        // this one from the group already.
+        if (pMember->GetFormation() != this)
             continue;
 
         if (pMember == member || pMember->IsInEvadeMode() || !itr.second.HasGroupFlag(std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_EVADE_MASK)))
@@ -307,7 +316,8 @@ void CreatureGroup::MemberEvaded(Creature* member)
         // EVADE_TOGETHER and RESPAWN_ON_EVADE are independent: living members evade, dead members respawn.
         if (pMember->IsAlive())
         {
-            if (!itr.second.HasGroupFlag(std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_EVADE_TOGETHER)))
+            if (!itr.second.HasGroupFlag(
+                    std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_EVADE_TOGETHER)))
                 continue;
 
             if (!pMember->IsInCombat())
@@ -319,7 +329,8 @@ void CreatureGroup::MemberEvaded(Creature* member)
         }
         else
         {
-            if (!itr.second.HasGroupFlag(std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_RESPAWN_ON_EVADE)))
+            if (!itr.second.HasGroupFlag(
+                    std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_RESPAWN_ON_EVADE)))
                 continue;
 
             if (itr.second.HasGroupFlag(std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_DONT_RESPAWN_LEADER_ON_EVADE)) && pMember == m_leader)
@@ -446,18 +457,26 @@ void CreatureGroup::RemoveFormationMovement()
 
 void CreatureGroup::DespawnFormation(Milliseconds timeToDespawn /*=0ms*/, Seconds forcedRespawnTimer /*=0s*/)
 {
-    for (auto const& itr : m_members)
+    // Copy the member list first: DespawnOrUnsummon() takes the member out of
+    // the world, which erases it from m_members and would invalidate this loop.
+    CreatureGroupMemberType members = m_members;
+
+    for (auto const& itr : members)
     {
-        if (itr.first)
+        if (itr.first && itr.first->GetFormation() == this)
             itr.first->DespawnOrUnsummon(timeToDespawn, forcedRespawnTimer);
     }
 }
 
 void CreatureGroup::RespawnFormation(bool force)
 {
-    for (auto const& itr : m_members)
+    // Copy the member list first: Respawn() takes the member out of the world,
+    // which erases it from m_members and would invalidate this loop.
+    CreatureGroupMemberType members = m_members;
+
+    for (auto const& itr : members)
     {
-        if (itr.first && !itr.first->IsAlive())
+        if (itr.first && itr.first->GetFormation() == this && !itr.first->IsAlive())
         {
             itr.first->Respawn(force);
         }
