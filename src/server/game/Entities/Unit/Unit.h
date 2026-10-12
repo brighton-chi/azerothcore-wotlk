@@ -1364,6 +1364,10 @@ public:
     bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
     bool IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType auraType, int32 effectAmount, uint8 auraEffectMask, bool removeOtherAuraApplications = false);
 
+    // Direct area hits of SPELL_ATTR0_CU_ONLY_ONE_AREA_AURA spells, see Spell::GetOnlyOneAreaHitWindow
+    [[nodiscard]] bool HasRecentAreaSpellHit(uint32 spellId, uint32 windowMs) const;
+    void RegisterAreaSpellHit(uint32 spellId);
+
     // aura apply/remove helpers - you should better not use these
     Aura* _TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool periodicReset = false);
     void _AddAura(UnitAura* aura, Unit* caster);
@@ -2261,6 +2265,8 @@ private:
     uint32 _lastExtraAttackSpell;
     std::unordered_map<ObjectGuid /*guid*/, uint32 /*count*/> extraAttacksTargets;
     ObjectGuid _lastDamagedTargetGuid;
+
+    std::vector<std::pair<uint32 /*spellId*/, uint32 /*gameTimeMs*/>> _recentAreaSpellHits;
 
     typedef std::unordered_map<uint64 /*visibleFlag(uint32) + updateType(uint8)*/, BuildValuesCachedBuffer>  ValuesUpdateCache;
     ValuesUpdateCache _valuesUpdateCache;

@@ -204,7 +204,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_POSITIVE_EFF2                 = 0x08000000,
     SPELL_ATTR0_CU_FORCE_SEND_CATEGORY_COOLDOWNS = 0x10000000,
     SPELL_ATTR0_CU_FORCE_AURA_SAVING             = 0x20000800,
-    SPELL_ATTR0_CU_ONLY_ONE_AREA_AURA            = 0x20000000,
+    SPELL_ATTR0_CU_ONLY_ONE_AREA_AURA            = 0x20000000, // one persistent area aura per target; direct area spells: one hit per emitter period
     SPELL_ATTR0_CU_ENCOUNTER_REWARD              = 0x40000000,
     SPELL_ATTR0_CU_BYPASS_MECHANIC_IMMUNITY      = 0x80000000,
 
