@@ -292,6 +292,8 @@ public:
     void SetRespawnTime(uint32 respawn);
     void Respawn(bool force = false);
     void SaveRespawnTime() override;
+    // true until the creature's first JustRespawned call
+    [[nodiscard]] bool IsFirstAppearance() const { return _firstAppearance; }
 
     [[nodiscard]] uint32 GetRespawnDelay() const { return m_respawnDelay; }
     void SetRespawnDelay(uint32 delay) { m_respawnDelay = delay; }
@@ -543,6 +545,7 @@ private:
     // Formation variable
     CreatureGroup* m_formation;
     bool TriggerJustRespawned;
+    bool _firstAppearance;
 
     // Shared timer between mobs who assist another.
     // Damaging one extends leash range on all of them.
