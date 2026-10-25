@@ -421,8 +421,7 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
                 if (i == 0)
                 {
                     CastSpellOnTeam(AV_BUFF_A_CAPTAIN, TEAM_ALLIANCE);
-                    // Creature* creature = GetBGCreature(AV_CPLACE_MAX + 79);
-                    Creature* creature = GetStaticCreatureByEntry(BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN]);
+                    Creature* creature = GetBGCreature(AV_CPLACE_A_CAPTAIN);
                     if (creature)
                     {
                         std::string creatureText = sCreatureTextMgr->GetLocalizedChatString(creature->GetEntry(), creature->getGender(), 0, 0, DEFAULT_LOCALE);
@@ -432,8 +431,7 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
                 else
                 {
                     CastSpellOnTeam(AV_BUFF_H_CAPTAIN, TEAM_HORDE);
-                    // Creature* creature = GetBGCreature(AV_CPLACE_MAX + 77); //TODO: make the captains a dynamic creature
-                    Creature* creature = GetStaticCreatureByEntry(BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN]);
+                    Creature* creature = GetBGCreature(AV_CPLACE_H_CAPTAIN); //TODO: make the captains a dynamic creature
                     if (creature)
                     {
                         std::string creatureText = sCreatureTextMgr->GetLocalizedChatString(creature->GetEntry(), creature->getGender(), 2, 0, DEFAULT_LOCALE);
@@ -714,7 +712,7 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
 
     uint16 boss;
     uint16 place;
-    
+
     if (mine == AV_NORTH_MINE)
     {
         if (teamId == TEAM_ALLIANCE)
@@ -809,20 +807,16 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
 
     if (node >= BG_AV_NODES_MAX)//fail safe
         return;
-
-    // Per-node world trigger. Its coordinates live in the AV_CPLACE_TRIGGER01..19 block of BG_AV_CreaturePos.
-    uint32 const triggerPlace = AV_CPLACE_TRIGGER01 + static_cast<uint32>(node);
-
-    Creature* trigger = GetBgMap()->GetCreature(BgCreatures[triggerPlace]);
-
+    uint32 const triggerType = static_cast<uint32>(node) + AV_CPLACE_TRIGGER01;
+    Creature* trigger = GetBgMap()->GetCreature(BgCreatures[triggerType]);
     if (!trigger)
     {
         trigger = AddCreature(WORLD_TRIGGER,
-                              triggerPlace,
-                              BG_AV_CreaturePos[triggerPlace][0],
-                              BG_AV_CreaturePos[triggerPlace][1],
-                              BG_AV_CreaturePos[triggerPlace][2],
-                              BG_AV_CreaturePos[triggerPlace][3]);
+                                triggerType,
+                                BG_AV_CreaturePos[triggerType][0],
+                                BG_AV_CreaturePos[triggerType][1],
+                                BG_AV_CreaturePos[triggerType][2],
+                                BG_AV_CreaturePos[triggerType][3]);
     }
 
     //add bonus honor aura trigger creature when node is accupied
@@ -832,7 +826,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
     {
         if (ownerId != TEAM_ALLIANCE && ownerId != TEAM_HORDE)//node can be neutral, remove trigger
         {
-            DelCreature(triggerPlace);
+            DelCreature(triggerType);
             return;
         }
         trigger->SetFaction(ownerId == TEAM_ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
@@ -863,9 +857,8 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node, bool ignoreSpiritGuide)
     uint32 const triggerPlace = static_cast<uint32>(AV_CPLACE_TRIGGER01) + static_cast<uint32>(node);
 
     //remove bonus honor aura trigger creature when node is lost
-    if (node < BG_AV_NODES_MAX) //fail safe
-        DelCreature(triggerPlace);
-
+    if (node < BG_AV_NODES_MAX)//fail safe
+        DelCreature(static_cast<uint32>(node) + AV_CPLACE_TRIGGER01);//nullptr checks are in DelCreature!
 }
 
 BG_AV_Nodes BattlegroundAV::GetNodeThroughObject(uint32 object)
