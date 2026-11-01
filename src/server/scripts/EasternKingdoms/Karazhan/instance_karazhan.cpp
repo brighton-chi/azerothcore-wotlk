@@ -149,9 +149,6 @@ public:
                 case NPC_CHESS_EVENT_MEDIVH_CHEAT_FIRES:
                     _medivhCheatFiresGUID.insert(creature->GetGUID());
                     break;
-                case NPC_ECHO_OF_MEDIVH:
-                    _echoOfMedivhGUID = creature->GetGUID();
-                    break;
                 case NPC_FIENDISH_IMP:
                     if (Creature* terestrian = GetCreature(DATA_TERESTIAN))
                     {
@@ -485,7 +482,7 @@ public:
                 case DATA_NIGHTBANE:
                     return m_uiNightBaneGUID;
                 case DATA_ECHO_OF_MEDIVH:
-                    return _echoOfMedivhGUID;
+                    return GetObjectGuid(DATA_ECHO_OF_MEDIVH);
                 case DATA_DUST_COVERED_CHEST:
                     return DustCoveredChest;
             }
@@ -512,7 +509,6 @@ public:
         ObjectGuid DustCoveredChest;
         ObjectGuid m_uiRelayGUID;
         ObjectGuid _barnesGUID;
-        ObjectGuid _echoOfMedivhGUID;
 
         GuidVector _operaDecorations[EVENT_RAJ];
         GuidSet _chessPiecesGUID;

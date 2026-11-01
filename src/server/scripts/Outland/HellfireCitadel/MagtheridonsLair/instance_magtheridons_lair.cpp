@@ -78,9 +78,6 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_MAGTHERIDON:
-                    _magtheridonGUID = creature->GetGUID();
-                    break;
                 case NPC_HELLFIRE_CHANNELER:
                     _channelersSet.insert(creature->GetGUID());
                     break;
@@ -113,7 +110,7 @@ public:
             if (GetBossState(DATA_MAGTHERIDON) != IN_PROGRESS || IsAnyChannelerAlive())
                 return;
 
-            if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
+            if (Creature* magtheridon = GetCreature(DATA_MAGTHERIDON))
                 magtheridon->AI()->DoAction(ACTION_RELEASE_MAGTHERIDON);
         }
 
@@ -125,7 +122,7 @@ public:
             // Only a Channeler-phase wipe resets the encounter. Past the 2 minute auto-release he is
             // loose with Channelers still up, and a reset there would disable the Manticron Cubes and
             // open the door mid-fight.
-            if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
+            if (Creature* magtheridon = GetCreature(DATA_MAGTHERIDON))
                 if (magtheridon->AI()->GetData(DATA_MAGTHERIDON_RELEASED))
                     return;
 
@@ -214,7 +211,7 @@ public:
                                 abyssal->DespawnOrUnsummon();
 
                         // Reset a still-caged Magtheridon: he is engaged from the Channeler pull on.
-                        if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
+                        if (Creature* magtheridon = GetCreature(DATA_MAGTHERIDON))
                             magtheridon->AI()->DoAction(ACTION_RESET_ENCOUNTER);
                     }
                 }
@@ -233,7 +230,7 @@ public:
                     if (GetBossState(DATA_MAGTHERIDON) != IN_PROGRESS)
                     {
                         SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
-                        if (Creature* magtheridon = instance->GetCreature(_magtheridonGUID))
+                        if (Creature* magtheridon = GetCreature(DATA_MAGTHERIDON))
                             magtheridon->SetInCombatWithZone();
                     }
                     break;
@@ -253,7 +250,6 @@ public:
         }
 
     private:
-        ObjectGuid _magtheridonGUID;
         GuidSet _channelersSet;
         GuidSet _wardersSet;
         GuidSet _burningAbyssalsSet;
