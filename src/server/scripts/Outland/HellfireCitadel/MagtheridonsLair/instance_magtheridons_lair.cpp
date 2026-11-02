@@ -31,14 +31,6 @@ DoorData const doorData[] =
     { 0,                        0,                          DOOR_TYPE_ROOM } // END
 };
 
-// Every boss is listed, even those this script never looks up:
-// mod-playerbots strategies find them through GetCreature().
-ObjectData const creatureData[] =
-{
-    { NPC_MAGTHERIDON, DATA_MAGTHERIDON },
-    { 0,               0                }
-};
-
 class instance_magtheridons_lair : public InstanceMapScript
 {
 public:
@@ -50,7 +42,6 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
-            LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
         }
@@ -91,16 +82,12 @@ public:
                     _burningAbyssalsSet.insert(creature->GetGUID());
                     break;
             }
-
-            InstanceScript::OnCreatureCreate(creature);
         }
 
         void OnCreatureRemove(Creature* creature) override
         {
             if (creature->GetEntry() == NPC_BURNING_ABYSSAL)
                 _burningAbyssalsSet.erase(creature->GetGUID());
-
-            InstanceScript::OnCreatureRemove(creature);
         }
 
         void OnUnitDeath(Unit* unit) override

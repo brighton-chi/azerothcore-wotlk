@@ -43,11 +43,7 @@ enum DataTypes
     DATA_CONSOLE                            = 26,  // Used by the console SAI.
     DATA_BRIDGE_PART1                       = 27,  // Used by the console SAI.
     DATA_BRIDGE_PART2                       = 28,  // Used by the console SAI.
-    DATA_BRIDGE_PART3                       = 29,  // Used by the console SAI.
-
-    DATA_FATHOM_GUARD_SHARKKIS              = 30,
-    DATA_FATHOM_GUARD_TIDALVESS             = 31,
-    DATA_FATHOM_GUARD_CARIBDIS              = 32
+    DATA_BRIDGE_PART3                       = 29   // Used by the console SAI.
 };
 
 enum SSNPCs
@@ -57,7 +53,6 @@ enum SSNPCs
     NPC_LEOTHERAS_THE_BLIND                 = 21215,
     NPC_CYCLONE_KARATHRESS                  = 22104,
     NPC_FATHOM_LORD_KARATHRESS              = 21214,
-    NPC_MOROGRIM_TIDEWALKER                 = 21213,
     NPC_LADY_VASHJ                          = 21212,
 
     NPC_FATHOM_GUARD_SHARKKIS               = 21966,
