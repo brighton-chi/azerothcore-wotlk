@@ -52,6 +52,12 @@ enum AnubActions
 {
     ACTION_SCARAB_SUBMERGE                      = 1, // read by the Skittering Scarab SmartAI (ACTION_DONE)
     ACTION_SPIKE_FAIL                           = 2,
+    ACTION_INTRO_EMERGE                         = 3, // sent by the SmartAI of areatrigger 5475 (his chamber)
+};
+
+enum AnubPoints
+{
+    POINT_FALL_GROUND                           = 1,
 };
 
 Position const AnubLocs[] =
@@ -162,22 +168,44 @@ struct boss_anubarak_trial : public BossAI
     boss_anubarak_trial(Creature* creature) : BossAI(creature, BOSS_ANUBARAK)
     {
         me->ApplySpellImmune(0, IMMUNITY_ID, sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, me), true);
-        me->m_SightDistance = 90.0f; // for MoveInLineOfSight distance
     }
 
     void Reset() override
     {
         _Reset();
-        _intro = false;
+        _introPending = false;
         _phase3 = false;
-        me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void DoAction(int32 param) override
     {
-        if (param == ACTION_DESPAWN_SUMMONS)
-            summons.DespawnAll();
+        switch (param)
+        {
+            case ACTION_DESPAWN_SUMMONS:
+                summons.DespawnAll();
+                break;
+            case ACTION_ANUBARAK_INTRO_SUBMERGE:
+                _introPending = true;
+                me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToAll(true);
+                DoCastSelf(SPELL_SUBMERGE);
+                break;
+            case ACTION_INTRO_EMERGE:
+                if (!_introPending)
+                    break;
+                _introPending = false;
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveAura(SPELL_SUBMERGE);
+                DoCastSelf(SPELL_EMERGE);
+                Talk(SAY_INTRO);
+                me->m_Events.AddEventAtOffset([this]()
+                {
+                    me->SetImmuneToAll(false);
+                }, 7s);
+                break;
+            default:
+                break;
+        }
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -365,24 +393,6 @@ struct boss_anubarak_trial : public BossAI
         instance->SetData(TYPE_FAILED, 1);
     }
 
-    void MoveInLineOfSight(Unit* who) override
-    {
-        if (!who->IsPlayer() || me->GetExactDistSq(who) > 6400.0f) // 80yd*80yd
-            return;
-
-        if (me->getStandState() != UNIT_STAND_STATE_STAND)
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-
-        if (!_intro)
-        {
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            if (!me->IsInCombat())
-                Talk(SAY_INTRO);
-            _intro = true;
-        }
-        ScriptedAI::MoveInLineOfSight(who);
-    }
-
     bool CanAIAttack(Unit const* target) const override
     {
         return target->GetEntry() != NPC_FROST_SPHERE;
@@ -395,7 +405,7 @@ private:
         DoCastAOE(SPELL_RESET_CLEANUP, true);
     }
 
-    bool _intro;
+    bool _introPending;
     bool _phase3;
     ObjectGuid _sphereGUIDs[6];
 };
@@ -473,20 +483,31 @@ struct npc_frost_sphere : public NullCreatureAI
             if (!me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
             {
                 me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveAllAuras();
                 me->GetMotionMaster()->MoveIdle();
-                me->GetMotionMaster()->MoveCharge(me->GetPositionX(), me->GetPositionY(), 143.0f, 20.0f);
-                scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
-                    DoCastSelf(SPELL_PERMAFROST_MODEL, true);
-                    me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), 142.7f, me->GetOrientation(), false);
-                    me->SetFacingTo(me->GetOrientation());
-                    DoCastSelf(SPELL_PERMAFROST_VISUAL, true);
-                    DoCastSelf(SPELL_PERMAFROST, true);
-                    me->SetCanFly(false);
-                });
+
+                // MoveFall launches nothing this close to the ground, so no MovementInform would follow.
+                float groundZ = me->GetMapHeight(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), true, MAX_FALL_DISTANCE);
+                if (groundZ <= INVALID_HEIGHT || std::fabs(me->GetPositionZ() - groundZ) < 0.1f)
+                    Land();
+                else
+                    me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
             }
         }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == EFFECT_MOTION_TYPE && id == POINT_FALL_GROUND)
+            Land();
+    }
+
+    void Land()
+    {
+        DoCastSelf(SPELL_PERMAFROST_VISUAL, true);
+        DoCastSelf(SPELL_PERMAFROST, true);
+        DoCastSelf(SPELL_PERMAFROST_MODEL, true);
+        me->SetCanFly(false);
     }
 
     void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
@@ -497,11 +518,6 @@ struct npc_frost_sphere : public NullCreatureAI
             me->RemoveAllAurasExceptType(SPELL_AURA_TRANSFORM);
             me->DespawnOrUnsummon(1500ms);
         }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        scheduler.Update(diff);
     }
 };
 
@@ -522,6 +538,13 @@ struct npc_nerubian_burrower : public ScriptedAI
             AttackStart(target);
             DoZoneInCombat();
         }
+    }
+
+    // Reset runs from AddToWorld, before any client has the burrower, so its Emerge visual
+    // would never be sent; IsSummonedBy runs once the create packet is out.
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        DoCastSelf(SPELL_EMERGE);
     }
 
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override
